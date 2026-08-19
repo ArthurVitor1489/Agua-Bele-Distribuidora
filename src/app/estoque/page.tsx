@@ -676,15 +676,15 @@ export default function EstoquePage() {
                   <input
                     type="number"
                     min={0}
-                    placeholder="0"
-                    value={item.quantidade === 0 ? '' : item.quantidade}
+                    value={item.quantidade}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => {
-                      const val = e.target.value === '' ? 0 : Math.max(0, Number(e.target.value));
+                      const val = Math.max(0, Number(e.target.value));
                       const updated = [...itensCarga];
                       updated[index].quantidade = val;
                       setItensCarga(updated);
                     }}
-                    className="w-24 text-xs p-1.5 bg-slate-50 border border-slate-200 rounded text-center font-bold text-slate-900 focus:bg-white focus:ring-1 focus:ring-brand-500"
+                    className="w-24 text-xs p-1.5 bg-white border border-slate-300 rounded text-center font-bold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500 shadow-xs"
                   />
                   <span className="text-xs text-slate-500">un</span>
                 </div>
