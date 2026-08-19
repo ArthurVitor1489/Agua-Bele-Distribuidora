@@ -1,0 +1,253 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cliente {
+  id              String          @id @default(uuid())
+  nome            String
+  cpfCnpj         String?
+  telefone        String?
+  whatsapp        String?
+  email           String?
+  cep             String?
+  logradouro      String?
+  numero          String?
+  complemento     String?
+  bairro          String?
+  cidade          String?
+  estado          String?
+  pontoReferencia String?
+  observacoes     String?
+  ativo           Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  pedidos         Pedido[]
+  fiados          Fiado[]
+  boletos         BoletoReceber[]
+}
+
+model Produto {
+  id            String                @id @default(uuid())
+  nome          String
+  categoria     String                @default("AGUA_25L")
+  unidade       String                @default("UN")
+  precoVenda    Float
+  ativo         Boolean               @default(true)
+  observacoes   String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  estoque       EstoqueProduto?
+  pedidoItens   PedidoItem[]
+  movimentacoes MovimentacaoEstoque[]
+}
+
+model EstoqueProduto {
+  id               String   @id @default(uuid())
+  produtoId        String   @unique
+  produto          Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  quantidadeAtual  Int      @default(0)
+  quantidadeMinima Int      @default(10)
+  updatedAt        DateTime @updatedAt
+}
+
+model EstoqueGarrafao {
+  id            String                @id @default(uuid())
+  anoFabricacao Int
+  anoValidade   Int
+  quantidade    Int                   @default(0)
+  status        String                @default("DISPONIVEL") // DISPONIVEL, CHEIO, VAZIO, DANIFICADO, QUEBRADO, VENCIDO, DESCARTADO
+  observacoes   String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  movimentacoes MovimentacaoEstoque[]
+}
+
+model MovimentacaoEstoque {
+  id                String           @id @default(uuid())
+  tipo              String           // ENTRADA, SAIDA, AJUSTE, DEVOLUCAO, PERDA, DANIFICADO, QUEBRADO, DESCARTE
+  quantidade        Int
+  produtoId         String?
+  produto           Produto?         @relation(fields: [produtoId], references: [id], onDelete: SetNull)
+  estoqueGarrafaoId String?
+  estoqueGarrafao   EstoqueGarrafao? @relation(fields: [estoqueGarrafaoId], references: [id], onDelete: SetNull)
+  motivo            String?
+  pedidoId          String?
+  pedido            Pedido?          @relation(fields: [pedidoId], references: [id], onDelete: SetNull)
+  data              DateTime         @default(now())
+}
+
+model Pedido {
+  id             String                @id @default(uuid())
+  numero         Int                   @unique
+  clienteId      String
+  cliente        Cliente               @relation(fields: [clienteId], references: [id])
+  data           DateTime              @default(now())
+  status         String                @default("PENDENTE") // PENDENTE, EM_ANDAMENTO, ENTREGUE, CANCELADO
+  formaPagamento String?               // PIX, DINHEIRO, DEBITO, CREDITO, FIADO, BOLETO
+  subtotal       Float                 @default(0)
+  desconto       Float                 @default(0)
+  acrescimo      Float                 @default(0)
+  total          Float                 @default(0)
+  observacoes    String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  itens          PedidoItem[]
+  pagamentos     Pagamento[]
+  fiado          Fiado?
+  boletoReceber  BoletoReceber?
+  movimentacoes  MovimentacaoEstoque[]
+}
+
+model PedidoItem {
+  id            String   @id @default(uuid())
+  pedidoId      String
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId     String
+  produto       Produto  @relation(fields: [produtoId], references: [id])
+  quantidade    Int
+  valorUnitario Float
+  desconto      Float    @default(0)
+  total         Float
+}
+
+model Pagamento {
+  id            String   @id @default(uuid())
+  pedidoId      String
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  forma         String   // PIX, DINHEIRO, DEBITO, CREDITO, BOLETO
+  valor         Float
+  dataPagamento DateTime @default(now())
+  observacoes   String?
+}
+
+model Fiado {
+  id            String           @id @default(uuid())
+  pedidoId      String           @unique
+  pedido        Pedido           @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  clienteId     String
+  cliente       Cliente          @relation(fields: [clienteId], references: [id])
+  valorOriginal Float
+  valorPago     Float            @default(0)
+  saldo         Float
+  situacao      String           @default("ABERTO") // ABERTO, PARCIAL, QUITADO
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  historico     FiadoHistorico[]
+}
+
+model FiadoHistorico {
+  id             String   @id @default(uuid())
+  fiadoId        String
+  fiado          Fiado    @relation(fields: [fiadoId], references: [id], onDelete: Cascade)
+  valorPago      Float
+  dataPagamento  DateTime @default(now())
+  formaPagamento String   // PIX, DINHEIRO, DEBITO, CREDITO
+  observacoes    String?
+}
+
+model BoletoReceber {
+  id                 String          @id @default(uuid())
+  pedidoId           String          @unique
+  pedido             Pedido          @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  clienteId          String
+  cliente            Cliente         @relation(fields: [clienteId], references: [id])
+  numero             String
+  quantidadeParcelas Int
+  valorTotal         Float
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  parcelas           BoletoParcela[]
+}
+
+model BoletoParcela {
+  id              String        @id @default(uuid())
+  boletoReceberId String
+  boletoReceber   BoletoReceber @relation(fields: [boletoReceberId], references: [id], onDelete: Cascade)
+  numeroParcela   Int
+  valor           Float
+  dataVencimento  DateTime
+  dataPagamento   DateTime?
+  status          String        @default("PENDENTE") // PENDENTE, VENCIDA, PAGA, CANCELADA
+}
+
+model Despesa {
+  id             String        @id @default(uuid())
+  categoria      String        // COMBUSTIVEL, MANUTENCAO, FORNECEDOR, PESSOAL, CONTAS_FIXAS, IMPOSTOS, OUTROS
+  descricao      String
+  valor          Float
+  data           DateTime      @default(now())
+  formaPagamento String        // PIX, DINHEIRO, DEBITO, CREDITO, BOLETO
+  status         String        @default("PAGA") // PAGA, PENDENTE
+  observacoes    String?
+  boletoPagarId  String?       @unique
+  boletoPagar    BoletoPagar?  @relation(fields: [boletoPagarId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model BoletoPagar {
+  id             String    @id @default(uuid())
+  fornecedor     String
+  numero         String
+  valor          Float
+  dataVencimento DateTime
+  status         String    @default("PENDENTE") // PENDENTE, PAGO, VENCIDO
+  despesa        Despesa?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model NotaFiscal {
+  id             String           @id @default(uuid())
+  numero         String
+  serie          String?
+  dataEmissao    DateTime
+  emissorNome    String
+  emissorCnpj    String
+  chaveAcesso    String?
+  valorTotal     Float
+  valorIcms      Float            @default(0)
+  valorPis       Float            @default(0)
+  valorCofins    Float            @default(0)
+  outrosTributos Float            @default(0)
+  arquivoUrl     String?
+  observacoes    String?
+  createdAt      DateTime         @default(now())
+  itens          NotaFiscalItem[]
+}
+
+model NotaFiscalItem {
+  id            String     @id @default(uuid())
+  notaFiscalId  String
+  notaFiscal    NotaFiscal @relation(fields: [notaFiscalId], references: [id], onDelete: Cascade)
+  descricao     String
+  quantidade    Float
+  valorUnitario Float
+  valorTotal    Float
+}
+
+model Configuracao {
+  id          String   @id @default("default")
+  nomeEmpresa String   @default("Água Belle — Distribuidora de Água")
+  cnpj        String?  @default("12.345.678/0001-90")
+  telefone    String?  @default("(83) 98888-7777")
+  endereco    String?  @default("Av. Principal, 1000 - Centro")
+  cidade      String?  @default("João Pessoa")
+  estado      String?  @default("PB")
+  chavePix    String?  @default("pix@aguabelle.com.br")
+  updatedAt   DateTime @updatedAt
+}

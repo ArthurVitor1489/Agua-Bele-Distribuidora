@@ -1,0 +1,49 @@
+{
+  "name": "Água Belle — Sistema de Gestão",
+  "short_name": "Água Belle",
+  "description": "Sistema de gestão comercial, operacional e financeiro da Distribuidora Água Belle",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#082f49",
+  "theme_color": "#0284c7",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Novo Pedido",
+      "short_name": "Novo Pedido",
+      "description": "Criar um novo pedido de água rapidamente",
+      "url": "/pedidos?action=new",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Visão Financeira",
+      "short_name": "Financeiro",
+      "description": "Acessar faturamento e recebimentos",
+      "url": "/financeiro",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Estoque de Garrafões",
+      "short_name": "Estoque",
+      "description": "Consultar garrafões cheios, vazios e lotes",
+      "url": "/estoque",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
