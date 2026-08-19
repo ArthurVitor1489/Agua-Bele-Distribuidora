@@ -19,6 +19,10 @@ import {
   ExternalLink,
   ChevronRight,
   RefreshCw,
+  BellRing,
+  MessageCircle,
+  Send,
+  CalendarClock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Modal } from '@/components/ui/Modal';
@@ -29,6 +33,11 @@ export default function ClientesPage() {
   const [clientes, setClientes] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [abaAtiva, setAbaAtiva] = useState<'TODOS' | 'RECOMPRA'>('TODOS');
+  const [recompraData, setRecompraData] = useState<{ totalOportunidades: number; clientes: any[] }>({
+    totalOportunidades: 0,
+    clientes: [],
+  });
 
   // Modal de Criação / Edição
   const [modalOpen, setModalOpen] = useState(false);
@@ -73,8 +82,21 @@ export default function ClientesPage() {
     }
   };
 
+  const fetchRecompra = async () => {
+    try {
+      const res = await fetch('/api/clientes/recompra');
+      if (res.ok) {
+        const data = await res.json();
+        setRecompraData(data);
+      }
+    } catch (e) {
+      console.error('Erro ao buscar alertas de recompra:', e);
+    }
+  };
+
   useEffect(() => {
     fetchClientes();
+    fetchRecompra();
   }, [search]);
 
   const handleOpenCreate = () => {
@@ -201,8 +223,143 @@ export default function ClientesPage() {
         </div>
       </div>
 
-      {/* Clientes Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* Abas de Navegação */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <button
+          type="button"
+          onClick={() => setAbaAtiva('TODOS')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            abaAtiva === 'TODOS'
+              ? 'bg-slate-900 text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>Todos os Clientes ({clientes.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAbaAtiva('RECOMPRA')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            abaAtiva === 'RECOMPRA'
+              ? 'bg-amber-600 text-white shadow-xs'
+              : 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100'
+          }`}
+        >
+          <BellRing className="w-3.5 h-3.5" />
+          <span>🔔 Pós-Venda / Recompra Atrasada</span>
+          {recompraData.totalOportunidades > 0 && (
+            <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+              {recompraData.totalOportunidades}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {abaAtiva === 'RECOMPRA' ? (
+        <div className="space-y-4">
+          <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-950 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <BellRing className="w-5 h-5 text-amber-600 shrink-0" />
+              <div>
+                <h3 className="font-bold text-sm">Oportunidades de Recompra (Pós-Venda Ativo)</h3>
+                <p className="text-amber-800 text-xs">
+                  Clientes recorrentes que atingiram ou ultrapassaram a sua frequência habitual de compra de água.
+                </p>
+              </div>
+            </div>
+            <span className="font-bold text-xs bg-amber-200 text-amber-900 px-3 py-1 rounded-full">
+              {recompraData.totalOportunidades} Oportunidades
+            </span>
+          </div>
+
+          {recompraData.clientes.length === 0 ? (
+            <div className="bg-white p-8 rounded-xl border border-slate-200 text-center text-slate-500 text-xs">
+              <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+              <p className="font-bold text-slate-900">Excelente! Nenhum cliente com recompra atrasada hoje.</p>
+              <p className="text-slate-500 mt-0.5">Todos os seus clientes recorrentes estão em dia!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recompraData.clientes.map((item: any) => {
+                const phoneClean = (item.whatsapp || item.telefone || '').replace(/\D/g, '');
+                const mensagemWhats = `Olá ${item.nome}! Tudo bem? Vi aqui que já faz ${item.diasSemComprar} dias do seu último pedido de água na Água Belle. Gostaria que enviássemos novos garrafões hoje? 💧`;
+                const whatsUrl = `https://wa.me/55${phoneClean}?text=${encodeURIComponent(mensagemWhats)}`;
+
+                return (
+                  <div key={item.clienteId} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3">
+                    <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                          {item.nome}
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                            {item.totalPedidos} pedidos realizados
+                          </span>
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                          {item.bairro || item.cidade || 'João Pessoa'} {item.logradouro ? `— ${item.logradouro}, ${item.numero || ''}` : ''}
+                        </p>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase border ${
+                        item.urgencia === 'ALTA'
+                          ? 'bg-rose-100 text-rose-900 border-rose-300'
+                          : 'bg-amber-100 text-amber-900 border-amber-300'
+                      }`}>
+                        {item.diasAtraso > 0 ? `${item.diasAtraso} dias em atraso` : 'Hora de Recomprar'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Última Compra:</span>
+                        <span className="font-bold text-slate-900">
+                          há {item.diasSemComprar} dias ({new Date(item.ultimoPedidoData).toLocaleDateString('pt-BR')})
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Frequência Habitual:</span>
+                        <span className="font-bold text-slate-900">
+                          a cada {item.intervaloMedioDias} dias
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      {phoneClean ? (
+                        <a
+                          href={whatsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg transition-all shadow-xs"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          <span>Chamar no WhatsApp</span>
+                        </a>
+                      ) : (
+                        <span className="flex-1 text-center text-xs text-slate-400 py-2 border border-slate-200 rounded-lg">
+                          Sem WhatsApp Cadastrado
+                        </span>
+                      )}
+
+                      <Link
+                        href={`/pedidos?clienteId=${item.clienteId}`}
+                        className="flex items-center justify-center gap-1 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all shadow-xs"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Novo Pedido</span>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Clientes Table */
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
@@ -323,6 +480,7 @@ export default function ClientesPage() {
           </table>
         </div>
       </div>
+      )}
 
       {/* Modal de Cadastro / Edição de Cliente (Spec #10) */}
       <Modal
