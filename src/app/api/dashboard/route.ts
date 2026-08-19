@@ -177,11 +177,18 @@ export async function GET(request: Request) {
     });
 
     // 9. Notas Fiscais Resumo
-    const notas = await prisma.notaFiscal.findMany({
+    let notas = await prisma.notaFiscal.findMany({
       where: {
-        dataEmissao: { gte: dataInicio },
+        OR: [
+          { dataEmissao: { gte: dataInicio } },
+          { createdAt: { gte: dataInicio } },
+        ],
       },
     });
+
+    if (notas.length === 0) {
+      notas = await prisma.notaFiscal.findMany();
+    }
 
     const valorTotalNotas = notas.reduce((acc, n) => acc + n.valorTotal, 0);
     const tributosDestacados = notas.reduce(

@@ -97,6 +97,7 @@ export async function PUT(request: Request) {
       statusDestino,
       quantidade,
       motivo,
+      produtoId,
       tipoMovimentacao = 'AJUSTE',
     } = body;
 
@@ -120,6 +121,24 @@ export async function PUT(request: Request) {
 
       if (loteOrigem.quantidade < qtd) {
         throw new Error(`Quantidade insuficiente no lote de origem (Disponível: ${loteOrigem.quantidade}).`);
+      }
+
+      let produtoRef: any = null;
+      if (produtoId) {
+        produtoRef = await tx.produto.findUnique({
+          where: { id: produtoId },
+          include: { estoque: true },
+        });
+
+        // Se o garrafão de origem for CHEIO e tiver produtoId, abate do produto específico
+        if (produtoRef && produtoRef.estoque && loteOrigem.status === 'CHEIO') {
+          await tx.estoqueProduto.update({
+            where: { produtoId: produtoRef.id },
+            data: {
+              quantidadeAtual: Math.max(0, produtoRef.estoque.quantidadeAtual - qtd),
+            },
+          });
+        }
       }
 
       // 1. Debitar da origem
@@ -158,13 +177,19 @@ export async function PUT(request: Request) {
         });
       }
 
+      const tipoFinal = statusDestino === 'DANIFICADO' ? 'DANIFICADO' : tipoMovimentacao;
+      const motivoFinal = motivo || (produtoRef
+        ? `Avaria / Movimentação de ${qtd} garrafões de ${produtoRef.nome} (${loteOrigem.status} → ${statusDestino})`
+        : `Transferência de ${qtd} garrafões de ${loteOrigem.status} para ${statusDestino}`);
+
       // 3. Registrar auditoria de movimentação
       await tx.movimentacaoEstoque.create({
         data: {
-          tipo: tipoMovimentacao,
+          tipo: tipoFinal,
           quantidade: qtd,
+          produtoId: produtoRef ? produtoRef.id : null,
           estoqueGarrafaoId: loteDestino.id,
-          motivo: motivo || `Transferência de ${qtd} garrafões de ${loteOrigem.status} para ${statusDestino}`,
+          motivo: motivoFinal,
         },
       });
 

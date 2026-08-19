@@ -54,6 +54,7 @@ export default function EstoquePage() {
   const [loteOrigemId, setLoteOrigemId] = useState('');
   const [statusDestino, setStatusDestino] = useState<StatusGarrafao>('CHEIO');
   const [quantidadeMov, setQuantidadeMov] = useState(10);
+  const [produtoMovimentacaoId, setProdutoMovimentacaoId] = useState('');
   const [motivoMov, setMotivoMov] = useState('');
 
   const fetchEstoque = async () => {
@@ -162,6 +163,7 @@ export default function EstoquePage() {
           origemId: loteOrigemId,
           statusDestino,
           quantidade: Number(quantidadeMov),
+          produtoId: produtoMovimentacaoId || undefined,
           motivo: motivoMov,
         }),
       });
@@ -871,6 +873,24 @@ export default function EstoquePage() {
                     Lote {l.anoFabricacao} ({l.status}) — {l.quantidade} un disponíveis
                   </option>
                 ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Produto / Marca da Água (opcional)
+            </label>
+            <select
+              value={produtoMovimentacaoId}
+              onChange={(e) => setProdutoMovimentacaoId(e.target.value)}
+              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-medium"
+            >
+              <option value="">Garrafão Genérico / Vasilhame Geral</option>
+              {estoqueData?.produtos?.map((p: any) => (
+                <option key={p.id} value={p.id}>
+                  {p.nome} (Saldo em estoque: {p.estoque?.quantidadeAtual || 0} un)
+                </option>
+              ))}
             </select>
           </div>
 
