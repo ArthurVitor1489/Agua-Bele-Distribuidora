@@ -289,9 +289,11 @@ export default function ProdutosPage() {
                 type="number"
                 step="0.01"
                 required
-                value={formData.precoVenda}
-                onChange={(e) => setFormData({ ...formData, precoVenda: Number(e.target.value) })}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                value={formData.precoVenda === 0 ? '' : formData.precoVenda}
+                onFocus={(e) => e.target.select()}
+                placeholder="0,00"
+                onChange={(e) => setFormData({ ...formData, precoVenda: e.target.value === '' ? 0 : Number(e.target.value) })}
+                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 shadow-xs focus:ring-2 focus:ring-brand-500"
               />
             </div>
 
@@ -299,9 +301,11 @@ export default function ProdutosPage() {
               <label className="block text-xs font-bold text-slate-700 mb-1">Estoque Mínimo</label>
               <input
                 type="number"
-                value={formData.quantidadeMinima}
-                onChange={(e) => setFormData({ ...formData, quantidadeMinima: Number(e.target.value) })}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                value={formData.quantidadeMinima === 0 ? '' : formData.quantidadeMinima}
+                onFocus={(e) => e.target.select()}
+                placeholder="10"
+                onChange={(e) => setFormData({ ...formData, quantidadeMinima: e.target.value === '' ? 0 : Number(e.target.value) })}
+                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-semibold text-slate-900 shadow-xs focus:ring-2 focus:ring-brand-500"
               />
             </div>
           </div>
@@ -313,9 +317,11 @@ export default function ProdutosPage() {
               </label>
               <input
                 type="number"
-                value={formData.estoqueInicial}
-                onChange={(e) => setFormData({ ...formData, estoqueInicial: Number(e.target.value) })}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                value={formData.estoqueInicial === 0 ? '' : formData.estoqueInicial}
+                onFocus={(e) => e.target.select()}
+                placeholder="0"
+                onChange={(e) => setFormData({ ...formData, estoqueInicial: e.target.value === '' ? 0 : Number(e.target.value) })}
+                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-semibold text-slate-900 shadow-xs focus:ring-2 focus:ring-brand-500"
               />
             </div>
           )}

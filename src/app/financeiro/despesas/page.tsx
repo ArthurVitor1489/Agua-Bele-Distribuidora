@@ -299,9 +299,14 @@ export default function DespesasPage() {
                 step="0.01"
                 required
                 min={0.01}
-                value={formData.valor}
-                onChange={(e) => setFormData({ ...formData, valor: Number(e.target.value) })}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold"
+                placeholder="0,00"
+                value={formData.valor === 0 ? '' : formData.valor}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? 0 : Number(e.target.value);
+                  setFormData({ ...formData, valor: val });
+                }}
+                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 shadow-xs"
               />
             </div>
           </div>
