@@ -192,7 +192,13 @@ export default function ProdutosPage() {
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-700">{prod.unidade}</td>
                     <td className="px-4 py-3 font-bold text-slate-900 text-sm">
-                      {formatCurrency(prod.precoVenda)}
+                      {prod.precoVenda > 0 ? (
+                        formatCurrency(prod.precoVenda)
+                      ) : (
+                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200 text-[11px]">
+                          Definido por Cliente
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
@@ -283,15 +289,15 @@ export default function ProdutosPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Preço de Venda (R$) *
+                Preço Base Padrão (R$) <span className="font-normal text-slate-400">(Opcional)</span>
               </label>
               <input
                 type="number"
                 step="0.01"
-                required
+                min="0"
                 value={formData.precoVenda === 0 ? '' : formData.precoVenda}
                 onFocus={(e) => e.target.select()}
-                placeholder="0,00"
+                placeholder="Definido por Cliente"
                 onChange={(e) => setFormData({ ...formData, precoVenda: e.target.value === '' ? 0 : Number(e.target.value) })}
                 className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 shadow-xs focus:ring-2 focus:ring-brand-500"
               />

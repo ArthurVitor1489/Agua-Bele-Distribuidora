@@ -50,11 +50,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Nome do produto é obrigatório' }, { status: 400 });
     }
 
-    if (body.precoVenda === undefined || body.precoVenda === null || Number(body.precoVenda) < 0) {
-      return NextResponse.json({ error: 'Preço de venda válido é obrigatório' }, { status: 400 });
-    }
-
-    const precoVenda = Number(body.precoVenda);
+    const precoVenda = Number(body.precoVenda || 0);
     const estoqueInicial = Number(body.estoqueInicial || 0);
     const quantidadeMinima = Number(body.quantidadeMinima || 10);
 
