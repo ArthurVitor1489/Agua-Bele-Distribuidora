@@ -12,10 +12,11 @@ Set http = CreateObject("MSXML2.ServerXMLHTTP")
 http.open "GET", "http://localhost:3000/api/configuracoes", False
 http.send
 
-If Err.Number <> 0 Then
-    ' Servidor desligado: Iniciar o servidor de produção Next.js em segundo plano
+If Err.Number <> 0 Or http.status <> 200 Then
+    ' Matar processos antigos/travados no Node e iniciar o servidor limpo de produção
+    WshShell.Run "cmd /c taskkill /f /im node.exe", 0, True
     WshShell.Run "cmd /c npm.cmd start", 0, False
-    WScript.Sleep 3000
+    WScript.Sleep 4000
 End If
 On Error GoTo 0
 
