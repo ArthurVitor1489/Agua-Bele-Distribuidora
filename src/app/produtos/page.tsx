@@ -156,7 +156,6 @@ export default function ProdutosPage() {
                 <th className="px-4 py-3">Produto</th>
                 <th className="px-4 py-3">Categoria</th>
                 <th className="px-4 py-3">Unidade</th>
-                <th className="px-4 py-3">Preço de Venda</th>
                 <th className="px-4 py-3 text-center">Estoque Atual</th>
                 <th className="px-4 py-3 text-center">Status</th>
                 <th className="px-4 py-3 text-right">Ações</th>
@@ -165,14 +164,14 @@ export default function ProdutosPage() {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-slate-400">
+                  <td colSpan={6} className="text-center py-8 text-slate-400">
                     <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
                     Carregando produtos...
                   </td>
                 </tr>
               ) : produtos.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-slate-400">
+                  <td colSpan={6} className="text-center py-8 text-slate-400">
                     Nenhum produto cadastrado.
                   </td>
                 </tr>
@@ -191,15 +190,6 @@ export default function ProdutosPage() {
                       <Badge variant="neutral">{prod.categoria}</Badge>
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-700">{prod.unidade}</td>
-                    <td className="px-4 py-3 font-bold text-slate-900 text-sm">
-                      {prod.precoVenda > 0 ? (
-                        formatCurrency(prod.precoVenda)
-                      ) : (
-                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200 text-[11px]">
-                          Definido por Cliente
-                        </span>
-                      )}
-                    </td>
                     <td className="px-4 py-3 text-center">
                       <span
                         className={`font-bold px-2.5 py-1 rounded-md text-xs ${
@@ -286,34 +276,16 @@ export default function ProdutosPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Preço Base Padrão (R$) <span className="font-normal text-slate-400">(Opcional)</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.precoVenda === 0 ? '' : formData.precoVenda}
-                onFocus={(e) => e.target.select()}
-                placeholder="Definido por Cliente"
-                onChange={(e) => setFormData({ ...formData, precoVenda: e.target.value === '' ? 0 : Number(e.target.value) })}
-                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 shadow-xs focus:ring-2 focus:ring-brand-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Estoque Mínimo</label>
-              <input
-                type="number"
-                value={formData.quantidadeMinima === 0 ? '' : formData.quantidadeMinima}
-                onFocus={(e) => e.target.select()}
-                placeholder="10"
-                onChange={(e) => setFormData({ ...formData, quantidadeMinima: e.target.value === '' ? 0 : Number(e.target.value) })}
-                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-semibold text-slate-900 shadow-xs focus:ring-2 focus:ring-brand-500"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Estoque Mínimo (Alerta de Reposição)</label>
+            <input
+              type="number"
+              value={formData.quantidadeMinima === 0 ? '' : formData.quantidadeMinima}
+              onFocus={(e) => e.target.select()}
+              placeholder="10"
+              onChange={(e) => setFormData({ ...formData, quantidadeMinima: e.target.value === '' ? 0 : Number(e.target.value) })}
+              className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-semibold text-slate-900 shadow-xs focus:ring-2 focus:ring-brand-500"
+            />
           </div>
 
           {!editingProduto && (
