@@ -48,6 +48,9 @@ export default function ClientesPage() {
   const [clienteHistorico, setClienteHistorico] = useState<any>(null);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
 
+  const [produtosList, setProdutosList] = useState<any[]>([]);
+  const [precosEspeciais, setPrecosEspeciais] = useState<{ [produtoId: string]: string }>({});
+
   // Form State
   const [formData, setFormData] = useState({
     nome: '',
@@ -94,13 +97,27 @@ export default function ClientesPage() {
     }
   };
 
+  const fetchProdutosList = async () => {
+    try {
+      const res = await fetch('/api/produtos');
+      if (res.ok) {
+        const data = await res.json();
+        setProdutosList(data);
+      }
+    } catch (e) {
+      console.error('Erro ao buscar produtos:', e);
+    }
+  };
+
   useEffect(() => {
     fetchClientes();
     fetchRecompra();
+    fetchProdutosList();
   }, [search]);
 
   const handleOpenCreate = () => {
     setEditingCliente(null);
+    setPrecosEspeciais({});
     setFormData({
       nome: '',
       cpfCnpj: '',
@@ -123,6 +140,14 @@ export default function ClientesPage() {
 
   const handleOpenEdit = (cli: any) => {
     setEditingCliente(cli);
+    const peMap: { [key: string]: string } = {};
+    if (Array.isArray(cli.precosEspeciais)) {
+      cli.precosEspeciais.forEach((item: any) => {
+        peMap[item.produtoId] = String(item.preco);
+      });
+    }
+    setPrecosEspeciais(peMap);
+
     setFormData({
       nome: cli.nome || '',
       cpfCnpj: cli.cpfCnpj || '',
@@ -149,10 +174,19 @@ export default function ClientesPage() {
       const url = editingCliente ? `/api/clientes/${editingCliente.id}` : '/api/clientes';
       const method = editingCliente ? 'PUT' : 'POST';
 
+      const precosArray = Object.entries(precosEspeciais)
+        .filter(([_, val]) => val !== '' && Number(val) > 0)
+        .map(([produtoId, preco]) => ({ produtoId, preco: Number(preco) }));
+
+      const payload = {
+        ...formData,
+        precosEspeciais: precosArray,
+      };
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -395,6 +429,11 @@ export default function ClientesPage() {
                       {cli.cpfCnpj && (
                         <span className="text-[11px] text-slate-500 block font-mono">
                           {cli.cpfCnpj}
+                        </span>
+                      )}
+                      {cli.precosEspeciais && cli.precosEspeciais.length > 0 && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 mt-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+                          💲 Preço Especial ({cli.precosEspeciais.length} {cli.precosEspeciais.length === 1 ? 'prod' : 'prods'})
                         </span>
                       )}
                     </td>
@@ -664,6 +703,52 @@ export default function ClientesPage() {
                 placeholder="Ex: Horário preferencial de entrega das 08h às 11h"
               />
             </div>
+          </div>
+
+          {/* Seção Preço Especial por Produto (Spec #45) */}
+          <div className="pt-3 border-t border-slate-200 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <DollarSign className="w-4 h-4 text-emerald-600" />
+                <span>Tabela de Preços Personalizados por Produto (Opcional)</span>
+              </label>
+              <span className="text-[11px] text-slate-500">
+                Preencha apenas se este cliente tiver valor negociado diferenciado.
+              </span>
+            </div>
+
+            {produtosList.length === 0 ? (
+              <p className="text-xs text-slate-400 italic">Nenhum produto cadastrado no sistema.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 max-h-48 overflow-y-auto">
+                {produtosList.map((prod) => (
+                  <div key={prod.id} className="bg-white p-2.5 rounded border border-slate-200 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="font-bold text-xs text-slate-900 truncate block">{prod.nome}</span>
+                      <span className="text-[11px] text-slate-500 block">
+                        Padrão: {formatCurrency(prod.precoVenda)}
+                      </span>
+                    </div>
+                    <div className="w-28 shrink-0 flex items-center gap-1">
+                      <span className="text-xs text-slate-400 font-bold">R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder={prod.precoVenda.toFixed(2)}
+                        value={precosEspeciais[prod.id] || ''}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => setPrecosEspeciais({
+                          ...precosEspeciais,
+                          [prod.id]: e.target.value
+                        })}
+                        className="w-full text-xs p-1.5 bg-white border border-slate-300 rounded font-bold text-emerald-700 text-right focus:ring-1 focus:ring-emerald-500 shadow-xs"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">

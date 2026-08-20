@@ -154,12 +154,33 @@ function PedidosContent() {
     return Math.max(0, calcularSubtotal() - Number(desconto || 0) + Number(acrescimo || 0));
   };
 
+  // Lógica de Preço Especial por Cliente
+  const getItemPrice = (produtoId: string, clienteId: string) => {
+    const prod = produtos.find((p) => p.id === produtoId);
+    const selectedCliente = clientes.find((c) => c.id === clienteId);
+    const esp = selectedCliente?.precosEspeciais?.find((pe: any) => pe.produtoId === produtoId);
+    return esp ? esp.preco : (prod ? prod.precoVenda : 0);
+  };
+
+  // Recalcular preços dos itens se o cliente for alterado
+  useEffect(() => {
+    if (selectedClienteId && createModalOpen) {
+      setPedidoItens((prev) =>
+        prev.map((item) => ({
+          ...item,
+          valorUnitario: getItemPrice(item.produtoId, selectedClienteId),
+        }))
+      );
+    }
+  }, [selectedClienteId]);
+
   const handleAddItem = () => {
     if (produtos.length === 0) return;
     const prodPadrao = produtos[0];
+    const preco = getItemPrice(prodPadrao.id, selectedClienteId);
     setPedidoItens([
       ...pedidoItens,
-      { produtoId: prodPadrao.id, quantidade: 1, valorUnitario: prodPadrao.precoVenda },
+      { produtoId: prodPadrao.id, quantidade: 1, valorUnitario: preco },
     ]);
   };
 
@@ -170,11 +191,11 @@ function PedidosContent() {
   const handleItemChange = (index: number, field: string, value: any) => {
     const updated = [...pedidoItens];
     if (field === 'produtoId') {
-      const prod = produtos.find((p) => p.id === value);
+      const preco = getItemPrice(value, selectedClienteId);
       updated[index] = {
         ...updated[index],
         produtoId: value,
-        valorUnitario: prod ? prod.precoVenda : updated[index].valorUnitario,
+        valorUnitario: preco,
       };
     } else {
       updated[index] = {

@@ -17,7 +17,7 @@ model User {
 }
 
 model Cliente {
-  id              String          @id @default(uuid())
+  id              String                @id @default(uuid())
   nome            String
   cpfCnpj         String?
   telefone        String?
@@ -32,27 +32,42 @@ model Cliente {
   estado          String?
   pontoReferencia String?
   observacoes     String?
-  ativo           Boolean         @default(true)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  ativo           Boolean               @default(true)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
   pedidos         Pedido[]
   fiados          Fiado[]
   boletos         BoletoReceber[]
+  precosEspeciais ClientePrecoProduto[]
 }
 
 model Produto {
-  id            String                @id @default(uuid())
-  nome          String
-  categoria     String                @default("AGUA_25L")
-  unidade       String                @default("UN")
-  precoVenda    Float
-  ativo         Boolean               @default(true)
-  observacoes   String?
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  estoque       EstoqueProduto?
-  pedidoItens   PedidoItem[]
-  movimentacoes MovimentacaoEstoque[]
+  id              String                @id @default(uuid())
+  nome            String
+  categoria       String                @default("AGUA_25L")
+  unidade         String                @default("UN")
+  precoVenda      Float
+  ativo           Boolean               @default(true)
+  observacoes     String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  estoque         EstoqueProduto?
+  pedidoItens     PedidoItem[]
+  movimentacoes   MovimentacaoEstoque[]
+  precosEspeciais ClientePrecoProduto[]
+}
+
+model ClientePrecoProduto {
+  id        String   @id @default(uuid())
+  clienteId String
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  produtoId String
+  produto   Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  preco     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clienteId, produtoId])
 }
 
 model EstoqueProduto {

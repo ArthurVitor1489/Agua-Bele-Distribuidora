@@ -43,6 +43,7 @@ export interface ClienteDTO {
   pontoReferencia?: string | null;
   observacoes?: string | null;
   ativo: boolean;
+  precosEspeciais?: { produtoId: string; preco: number; produto?: any }[];
   createdAt: string;
   updatedAt: string;
 }

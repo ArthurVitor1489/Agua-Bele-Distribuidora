@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -20,6 +22,9 @@ export async function GET(
         },
         boletos: {
           include: { parcelas: true, pedido: true },
+        },
+        precosEspeciais: {
+          include: { produto: true },
         },
       },
     });
@@ -43,25 +48,47 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const cliente = await prisma.cliente.update({
-      where: { id },
-      data: {
-        nome: body.nome?.trim(),
-        cpfCnpj: body.cpfCnpj?.trim() || null,
-        telefone: body.telefone?.trim() || null,
-        whatsapp: body.whatsapp?.trim() || null,
-        email: body.email?.trim() || null,
-        cep: body.cep?.trim() || null,
-        logradouro: body.logradouro?.trim() || null,
-        numero: body.numero?.trim() || null,
-        complemento: body.complemento?.trim() || null,
-        bairro: body.bairro?.trim() || null,
-        cidade: body.cidade?.trim() || null,
-        estado: body.estado?.trim() || 'PB',
-        pontoReferencia: body.pontoReferencia?.trim() || null,
-        observacoes: body.observacoes?.trim() || null,
-        ativo: body.ativo !== undefined ? Boolean(body.ativo) : undefined,
-      },
+    const cliente = await prisma.$transaction(async (tx) => {
+      const c = await tx.cliente.update({
+        where: { id },
+        data: {
+          nome: body.nome?.trim(),
+          cpfCnpj: body.cpfCnpj?.trim() || null,
+          telefone: body.telefone?.trim() || null,
+          whatsapp: body.whatsapp?.trim() || null,
+          email: body.email?.trim() || null,
+          cep: body.cep?.trim() || null,
+          logradouro: body.logradouro?.trim() || null,
+          numero: body.numero?.trim() || null,
+          complemento: body.complemento?.trim() || null,
+          bairro: body.bairro?.trim() || null,
+          cidade: body.cidade?.trim() || null,
+          estado: body.estado?.trim() || 'PB',
+          pontoReferencia: body.pontoReferencia?.trim() || null,
+          observacoes: body.observacoes?.trim() || null,
+          ativo: body.ativo !== undefined ? Boolean(body.ativo) : undefined,
+        },
+      });
+
+      if (Array.isArray(body.precosEspeciais)) {
+        await tx.clientePrecoProduto.deleteMany({
+          where: { clienteId: id },
+        });
+
+        for (const item of body.precosEspeciais) {
+          if (item.produtoId && Number(item.preco) > 0) {
+            await tx.clientePrecoProduto.create({
+              data: {
+                clienteId: id,
+                produtoId: item.produtoId,
+                preco: Number(item.preco),
+              },
+            });
+          }
+        }
+      }
+
+      return c;
     });
 
     return NextResponse.json(cliente);
