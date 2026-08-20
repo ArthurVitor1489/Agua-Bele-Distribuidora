@@ -14,6 +14,11 @@ import {
   DollarSign,
   Building,
   Key,
+  Printer,
+  Copy,
+  FileSpreadsheet,
+  Calendar,
+  Building2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
@@ -31,6 +36,13 @@ export default function NotasFiscaisPage() {
   const [dadosExtraidos, setDadosExtraidos] = useState<any | null>(null);
   const [arquivoUrl, setArquivoUrl] = useState<string | null>(null);
   const [arquivoNome, setArquivoNome] = useState<string>('');
+
+  // Fechamento Fiscal para o Contador
+  const [contadorModalOpen, setContadorModalOpen] = useState(false);
+  const [mesSelecionado, setMesSelecionado] = useState(new Date().toISOString().slice(0, 7));
+  const [relatorioContador, setRelatorioContador] = useState<any | null>(null);
+  const [loadingRelatorio, setLoadingRelatorio] = useState(false);
+  const [copiado, setCopiado] = useState(false);
 
   const fetchNotas = async () => {
     setLoading(true);
@@ -51,6 +63,123 @@ export default function NotasFiscaisPage() {
   useEffect(() => {
     fetchNotas();
   }, [search]);
+
+  const fetchRelatorioContador = async (mes: string) => {
+    setLoadingRelatorio(true);
+    try {
+      const res = await fetch(`/api/notas-fiscais/relatorio-contador?mes=${mes}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRelatorioContador(data);
+      }
+    } catch (e) {
+      console.error('Erro ao buscar relatório contábil:', e);
+    } finally {
+      setLoadingRelatorio(false);
+    }
+  };
+
+  const handleAbrirModalContador = () => {
+    setContadorModalOpen(true);
+    fetchRelatorioContador(mesSelecionado);
+  };
+
+  const handleCopiarTextoEmail = () => {
+    if (!relatorioContador) return;
+    const r = relatorioContador.resumo;
+    const texto = `Prezada Contabilidade,\n\nSegue o fechamento fiscal das Notas Fiscais referentes ao mês de ${relatorioContador.periodo.mesExtenso} da empresa ${relatorioContador.empresa}:\n\n📊 RESUMO DAS NOTAS FISCAIS:\n• Total de Notas Fiscais: ${r.totalNotas}\n• Valor Total Emitido/Recebido: R$ ${r.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n• Total ICMS Destacado: R$ ${r.totalIcms.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n• Total PIS: R$ ${r.totalPis.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n• Total COFINS: R$ ${r.totalCofins.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n• Total Geral de Tributos Destacados: R$ ${r.totalTributos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n\nOs arquivos detalhados seguem anexados. Qualquer dúvida estamos à disposição!\n\nAtenciosamente,\n${relatorioContador.empresa}`;
+
+    navigator.clipboard.writeText(texto);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 3000);
+  };
+
+  const handleDownloadCsv = () => {
+    window.open(`/api/notas-fiscais/relatorio-contador?mes=${mesSelecionado}&csv=true`, '_blank');
+  };
+
+  const handleImprimirRelatorio = () => {
+    if (!relatorioContador) return;
+    const win = window.open('', '_blank');
+    if (!win) return;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Fechamento Fiscal — ${relatorioContador.periodo.mesExtenso}</title>
+        <style>
+          body { font-family: sans-serif; padding: 25px; color: #1e293b; }
+          h1 { font-size: 20px; margin-bottom: 4px; }
+          .sub { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
+          th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+          th { background: #f8fafc; font-weight: bold; }
+          .text-right { text-align: right; }
+          .summary-box { display: flex; gap: 15px; margin-bottom: 24px; }
+          .box { flex: 1; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; background: #f8fafc; }
+          .box-title { font-size: 10px; color: #64748b; font-weight: bold; text-transform: uppercase; }
+          .box-val { font-size: 18px; font-weight: bold; margin-top: 4px; color: #0f172a; }
+        </style>
+      </head>
+      <body>
+        <h1>${relatorioContador.empresa}</h1>
+        <div class="sub">Relatório de Fechamento Fiscal Contábil — Período: ${relatorioContador.periodo.mesExtenso}</div>
+
+        <div class="summary-box">
+          <div class="box">
+            <div class="box-title">Total de Notas</div>
+            <div class="box-val">${relatorioContador.resumo.totalNotas}</div>
+          </div>
+          <div class="box">
+            <div class="box-title">Valor Total Bruto</div>
+            <div class="box-val">R$ ${relatorioContador.resumo.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+          </div>
+          <div class="box">
+            <div class="box-title">ICMS Destacado</div>
+            <div class="box-val">R$ ${relatorioContador.resumo.totalIcms.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+          </div>
+          <div class="box">
+            <div class="box-title">Total Tributos</div>
+            <div class="box-val">R$ ${relatorioContador.resumo.totalTributos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Nº Nota</th>
+              <th>Data Emissão</th>
+              <th>Emitente / Fornecedor</th>
+              <th>CNPJ Emitente</th>
+              <th class="text-right">Valor Total</th>
+              <th class="text-right">ICMS</th>
+              <th class="text-right">PIS/COFINS</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${relatorioContador.notas.map((n: any) => `
+              <tr>
+                <td>${n.numero || 'N/A'}</td>
+                <td>${new Date(n.dataEmissao).toLocaleDateString('pt-BR')}</td>
+                <td>${n.emitenteNome || '-'}</td>
+                <td>${n.emitenteCnpj || '-'}</td>
+                <td class="text-right">R$ ${n.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td class="text-right">R$ ${n.icms.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td class="text-right">R$ ${(n.pis + n.cofins).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <script>window.print();</script>
+      </body>
+      </html>
+    `;
+
+    win.document.write(html);
+    win.document.close();
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -140,6 +269,15 @@ export default function NotasFiscaisPage() {
               className="pl-9 pr-4 py-1.5 text-xs bg-white border border-slate-200 rounded-lg w-64 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
             />
           </div>
+
+          <button
+            type="button"
+            onClick={handleAbrirModalContador}
+            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm shadow-emerald-500/20 transition-all"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Pacote do Contador</span>
+          </button>
 
           <label className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm shadow-brand-500/20 transition-all cursor-pointer">
             {uploading ? (
@@ -435,6 +573,129 @@ export default function NotasFiscaisPage() {
             </div>
           </form>
         )}
+      </Modal>
+
+      {/* Modal Fechamento Fiscal para o Contador */}
+      <Modal
+        isOpen={contadorModalOpen}
+        onClose={() => setContadorModalOpen(false)}
+        title="Fechamento Fiscal & Pacote do Contador"
+        subtitle="Relatório consolidado de tributos e notas fiscais para a contabilidade"
+        maxWidth="lg"
+      >
+        <div className="space-y-4">
+          {/* Seletor de Mês */}
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs font-bold text-slate-800">Selecione o Mês de Referência:</span>
+            </div>
+            <input
+              type="month"
+              value={mesSelecionado}
+              onChange={(e) => {
+                setMesSelecionado(e.target.value);
+                fetchRelatorioContador(e.target.value);
+              }}
+              className="text-xs font-bold p-1.5 bg-white border border-slate-300 rounded-md text-slate-900 shadow-xs"
+            />
+          </div>
+
+          {loadingRelatorio ? (
+            <div className="py-12 text-center text-slate-400">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-600" />
+              Consolidando impostos e notas do mês...
+            </div>
+          ) : relatorioContador ? (
+            <>
+              {/* Cards do Resumo para o Contador */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="p-3 bg-white border border-slate-200 rounded-lg">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Qtd de Notas</span>
+                  <p className="text-base font-bold text-slate-900 mt-0.5">{relatorioContador.resumo.totalNotas}</p>
+                </div>
+                <div className="p-3 bg-white border border-slate-200 rounded-lg">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Valor Bruto Total</span>
+                  <p className="text-base font-bold text-slate-900 mt-0.5">{formatCurrency(relatorioContador.resumo.valorTotal)}</p>
+                </div>
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <span className="text-[10px] font-bold text-emerald-800 uppercase">ICMS Destacado</span>
+                  <p className="text-base font-bold text-emerald-950 mt-0.5">{formatCurrency(relatorioContador.resumo.totalIcms)}</p>
+                </div>
+                <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                  <span className="text-[10px] font-bold text-purple-800 uppercase">PIS + COFINS</span>
+                  <p className="text-base font-bold text-purple-950 mt-0.5">{formatCurrency(relatorioContador.resumo.totalPis + relatorioContador.resumo.totalCofins)}</p>
+                </div>
+              </div>
+
+              {/* Lista resumida das notas do mês */}
+              <div className="border border-slate-200 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                <table className="w-full text-left text-[11px]">
+                  <thead className="bg-slate-100 text-slate-600 font-bold border-b border-slate-200">
+                    <tr>
+                      <th className="p-2">Nº Nota</th>
+                      <th className="p-2">Data</th>
+                      <th className="p-2">Emitente</th>
+                      <th className="p-2 text-right">Valor Total</th>
+                      <th className="p-2 text-right">ICMS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {relatorioContador.notas.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="p-4 text-center text-slate-400 italic">
+                          Nenhuma nota fiscal encontrada no mês selecionado.
+                        </td>
+                      </tr>
+                    ) : (
+                      relatorioContador.notas.map((n: any) => (
+                        <tr key={n.id} className="hover:bg-slate-50">
+                          <td className="p-2 font-mono font-bold">{n.numero || 'N/A'}</td>
+                          <td className="p-2">{new Date(n.dataEmissao).toLocaleDateString('pt-BR')}</td>
+                          <td className="p-2 truncate max-w-[120px]">{n.emitenteNome || '-'}</td>
+                          <td className="p-2 text-right font-semibold">{formatCurrency(n.valorTotal)}</td>
+                          <td className="p-2 text-right text-emerald-700 font-medium">{formatCurrency(n.icms)}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Botões de Ação para Envio à Contabilidade */}
+              <div className="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopiarTextoEmail}
+                  className="px-3 py-2 text-xs font-semibold bg-slate-100 text-slate-800 hover:bg-slate-200 rounded-lg flex items-center gap-1.5 transition-colors"
+                >
+                  {copiado ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-600" />}
+                  <span>{copiado ? 'Resumo Copiado!' : 'Copiar Resumo p/ E-mail'}</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleImprimirRelatorio}
+                    className="px-3 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-slate-600" />
+                    <span>Imprimir Relatório</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadCsv}
+                    className="px-3 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1.5 transition-colors shadow-xs"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Baixar Planilha CSV Contador</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
       </Modal>
     </div>
   );
