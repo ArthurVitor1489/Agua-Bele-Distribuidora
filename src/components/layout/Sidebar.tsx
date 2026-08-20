@@ -41,8 +41,8 @@ export function Sidebar() {
     <aside className="w-64 bg-navy-950 text-slate-300 flex flex-col h-screen select-none border-r border-slate-800 shrink-0">
       {/* Brand Header */}
       <div className="h-16 flex items-center px-5 gap-3 border-b border-slate-800 bg-navy-900/80">
-        <div className="w-9 h-9 rounded-lg overflow-hidden border border-brand-500/40 shrink-0">
-          <img src="/favicon.ico" alt="Água Belle" className="w-full h-full object-cover" />
+        <div className="w-9 h-9 rounded-xl overflow-hidden border border-brand-400/30 shrink-0 shadow-xs">
+          <img src="/favicon.ico" alt="Água Belle" className="w-full h-full object-cover scale-110" />
         </div>
         <div>
           <h1 className="font-bold text-white text-base tracking-wide flex items-center gap-1.5">
