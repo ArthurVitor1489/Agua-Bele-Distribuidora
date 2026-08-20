@@ -13,9 +13,9 @@ http.open "GET", "http://localhost:3000/api/configuracoes", False
 http.send
 
 If Err.Number <> 0 Then
-    ' Servidor desligado: Iniciar o servidor Next.js em segundo plano
-    WshShell.Run "cmd /c npm.cmd run dev", 0, False
-    WScript.Sleep 4000
+    ' Servidor desligado: Iniciar o servidor de produção Next.js em segundo plano
+    WshShell.Run "cmd /c npm.cmd start", 0, False
+    WScript.Sleep 3000
 End If
 On Error GoTo 0
 
