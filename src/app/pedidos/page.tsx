@@ -445,15 +445,15 @@ function PedidosContent() {
                     {/* Ações */}
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        {/* Processar / Definir Pagamento (Spec #14) */}
+                        {/* Receber / Processar Pagamento (Spec #14) */}
                         <button
                           type="button"
                           onClick={() => handleAbrirProcessamento(p)}
-                          className="px-2.5 py-1 text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 rounded-md transition-colors flex items-center gap-1"
-                          title="Abrir pedido para definir forma de pagamento e status"
+                          className="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-colors flex items-center gap-1 shadow-2xs"
+                          title="Abrir pedido para registrar o pagamento e dar baixa no status"
                         >
-                          <CreditCard className="w-3.5 h-3.5" />
-                          <span>Processar</span>
+                          <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Receber Pagamento</span>
                         </button>
 
                         {/* Gerar PDF do Pedido (Spec #42) */}
@@ -661,7 +661,7 @@ function PedidosContent() {
       <Modal
         isOpen={processModalOpen}
         onClose={() => setProcessModalOpen(false)}
-        title={`Processar Pedido #${selectedPedido?.numero}`}
+        title={`Receber / Baixa de Pagamento — Pedido #${selectedPedido?.numero}`}
         subtitle={`Cliente: ${selectedPedido?.cliente?.nome || 'Balcão'} — Total: ${formatCurrency(selectedPedido?.total)}`}
         maxWidth="lg"
       >
