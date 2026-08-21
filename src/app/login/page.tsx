@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@aguabelle.com.br');
-  const [senha, setSenha] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState('');
@@ -134,9 +134,6 @@ export default function LoginPage() {
             <ShieldCheck className="w-3.5 h-3.5 text-brand-400" />
             <span>Acesso Restrito & Protegido</span>
           </div>
-          <p className="text-[10px] text-slate-500">
-            Acesso padrão inicial: <strong className="text-slate-300">admin@aguabelle.com.br</strong> / <strong className="text-slate-300">123456</strong>
-          </p>
         </div>
       </div>
 

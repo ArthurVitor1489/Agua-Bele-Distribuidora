@@ -1,5 +1,6 @@
 import { createClient } from '@libsql/client';
 import { gerarBackupCompleto } from '../src/lib/backup';
+import { hashPassword } from '../src/lib/auth';
 
 const url = 'libsql://agua-belle-db-tinywen.aws-us-east-1.turso.io';
 const authToken = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODczNTM1NDcsImlkIjoiMDFhMDI2OTItODUwMS03ZjcyLWJjM2YtNjkzZjIyYzM4MDdkIiwia2lkIjoiVmtXN1J0azMzX24yQ1ExbDdXemp4WEpxb2liZU1XajRFdnpLdlBHSTEtMCIsInJpZCI6IjY0NTIwMTc5LTI1YTQtNDUzZS1iY2E0LTM1NDliMGNlNzBiZCJ9.xniSY2b7Bq4cSGweN5sKyOOzKtC0N3X5s394A-TwcThgXiz-uZzZbIVlBGIhJPiHE5YeDgYpUhfMrsHpmRjqCA';
@@ -229,7 +230,15 @@ async function syncTurso() {
     args: [],
   });
 
-  console.log('Configuração da empresa Aguabelle inicializada com sucesso no banco Turso na Nuvem!');
+  // Inserir usuario admin padrao
+  const hashSenha = await hashPassword('123456');
+  await client.execute({
+    sql: `INSERT OR REPLACE INTO "User" (id, nome, email, senha, createdAt, updatedAt)
+          VALUES ('admin-id-default', 'Administrador', 'admin@aguabelle.com.br', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);`,
+    args: [hashSenha],
+  });
+
+  console.log('Configuração e Usuário Admin inicializados com sucesso no Turso na Nuvem!');
 }
 
 syncTurso().catch(console.error);
