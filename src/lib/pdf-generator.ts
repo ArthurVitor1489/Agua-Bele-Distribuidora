@@ -1,12 +1,41 @@
 import { PedidoDTO } from '@/types';
 
-export async function gerarPdfPedido(pedido: PedidoDTO, empresa = {
-  nome: 'ÁGUA BELLE — DISTRIBUIDORA DE ÁGUA',
-  cnpj: '34.892.120/0001-45',
-  telefone: '(83) 98765-4321',
-  endereco: 'Rua das Fontes Cristalinas, 250 - Tambauzinho, João Pessoa - PB',
-  chavePix: 'financeiro@aguabelle.com.br'
-}) {
+async function fetchEmpresaConfig() {
+  try {
+    const res = await fetch('/api/configuracoes');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.nomeEmpresa) {
+        const enderecoCompleto = [
+          data.endereco,
+          data.cidade,
+          data.estado,
+        ].filter(Boolean).join(', ');
+
+        return {
+          nome: data.nomeEmpresa || 'Aguabelle - fabricação e comércio de águas Ltda',
+          cnpj: data.cnpj || '34.194.297/0001-95',
+          telefone: data.telefone || '+55 83 9177-5672',
+          endereco: enderecoCompleto || 'Rua José Firmino da Silva 1415, Jardim Paulistano - CEP: 58415-245',
+          chavePix: data.chavePix || data.cnpj || '34.194.297/0001-95',
+        };
+      }
+    }
+  } catch (e) {
+    console.error('Erro ao carregar configuracoes da empresa para PDF:', e);
+  }
+
+  return {
+    nome: 'Aguabelle - fabricação e comércio de águas Ltda',
+    cnpj: '34.194.297/0001-95',
+    telefone: '+55 83 9177-5672',
+    endereco: 'Rua José Firmino da Silva 1415, Jardim Paulistano - CEP: 58415-245',
+    chavePix: '34.194.297/0001-95',
+  };
+}
+
+export async function gerarPdfPedido(pedido: PedidoDTO, empresaCustom?: any) {
+  const empresa = empresaCustom || await fetchEmpresaConfig();
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -22,22 +51,22 @@ export async function gerarPdfPedido(pedido: PedidoDTO, empresa = {
 
   // Header Banner
   doc.setFillColor(brandPrimary[0], brandPrimary[1], brandPrimary[2]);
-  doc.rect(0, 0, 210, 30, 'F');
+  doc.rect(0, 0, 210, 32, 'F');
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.text('ÁGUA BELLE', 14, 13);
-  doc.setFontSize(10);
+  doc.setFontSize(13);
+  doc.text(empresa.nome || 'Aguabelle - fabricação e comércio de águas Ltda', 14, 11);
+  doc.setFontSize(8.5);
   doc.setFont('helvetica', 'normal');
-  doc.text('Distribuidora de Água Mineral em Galões de 20L', 14, 20);
-  doc.text(`CNPJ: ${empresa.cnpj} | Fone: ${empresa.telefone}`, 14, 25);
+  doc.text(`CNPJ: ${empresa.cnpj || '34.194.297/0001-95'} | Fone/WhatsApp: ${empresa.telefone || '+55 83 9177-5672'}`, 14, 18);
+  doc.text(`Endereço: ${empresa.endereco || 'Rua José Firmino da Silva 1415, Jardim Paulistano - CEP: 58415-245'}`, 14, 24);
 
   // Pedido Info Box Right Header
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text(`PEDIDO Nº #${pedido.numero}`, 196, 14, { align: 'right' });
-  doc.setFontSize(9);
+  doc.setFontSize(13);
+  doc.text(`PEDIDO Nº #${pedido.numero}`, 196, 11, { align: 'right' });
+  doc.setFontSize(8.5);
   doc.setFont('helvetica', 'normal');
   const dataFormatada = new Date(pedido.data).toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -46,8 +75,8 @@ export async function gerarPdfPedido(pedido: PedidoDTO, empresa = {
     hour: '2-digit',
     minute: '2-digit',
   });
-  doc.text(`Emissão: ${dataFormatada}`, 196, 21, { align: 'right' });
-  doc.text(`Status: ${pedido.status}`, 196, 26, { align: 'right' });
+  doc.text(`Emissão: ${dataFormatada}`, 196, 18, { align: 'right' });
+  doc.text(`Status: ${pedido.status}`, 196, 24, { align: 'right' });
 
   // Section 1: Dados do Cliente
   let currentY = 38;
@@ -183,19 +212,19 @@ export async function gerarPdfPedido(pedido: PedidoDTO, empresa = {
 
   doc.setFontSize(8);
   doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-  doc.text('ÁGUA BELLE DISTRIBUIDORA', 57, currentY + 20, { align: 'center' });
+  doc.text(empresa.nome ? empresa.nome.substring(0, 35).toUpperCase() : 'AGUABELLE DISTRIBUIDORA', 57, currentY + 20, { align: 'center' });
   doc.text('ASSINATURA DO CLIENTE / RECEBEDOR', 152, currentY + 20, { align: 'center' });
 
   // Footer
   doc.setFontSize(7);
-  doc.text('Água Belle Gestão V1 — Documento gerado eletronicamente para fins comerciais e de entrega.', 105, 287, { align: 'center' });
+  doc.text(`${empresa.nome || 'Aguabelle'} — Documento gerado eletronicamente para fins comerciais e de entrega.`, 105, 287, { align: 'center' });
 
   return doc;
 }
 
 export async function baixarPdfPedido(pedido: PedidoDTO) {
   const doc = await gerarPdfPedido(pedido);
-  doc.save(`Pedido_${pedido.numero}_AguaBelle.pdf`);
+  doc.save(`Pedido_${pedido.numero}_Aguabelle.pdf`);
 }
 
 export async function imprimirPdfPedido(pedido: PedidoDTO) {
