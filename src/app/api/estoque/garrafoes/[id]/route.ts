@@ -54,27 +54,6 @@ export async function PUT(
         },
       });
 
-      // Se alterou um lote CHEIO, auto-sincroniza o EstoqueProduto para manter paridade perfeita 1:1
-      if (lote.status === 'CHEIO' || statusFinal === 'CHEIO') {
-        const produtoAgua = await tx.produto.findFirst({
-          where: { categoria: 'AGUA_20L' },
-        });
-
-        if (produtoAgua) {
-          const todosCheios = await tx.estoqueGarrafao.aggregate({
-            where: { status: 'CHEIO' },
-            _sum: { quantidade: true },
-          });
-          const totalCheios = todosCheios._sum.quantidade || 0;
-
-          await tx.estoqueProduto.upsert({
-            where: { produtoId: produtoAgua.id },
-            update: { quantidadeAtual: totalCheios },
-            create: { produtoId: produtoAgua.id, quantidadeAtual: totalCheios, quantidadeMinima: 10 },
-          });
-        }
-      }
-
       return loteAtualizado;
     });
 
@@ -111,27 +90,6 @@ export async function DELETE(
       await tx.estoqueGarrafao.delete({
         where: { id },
       });
-
-      // 3. Se era lote CHEIO, auto-sincronizar EstoqueProduto
-      if (lote.status === 'CHEIO') {
-        const produtoAgua = await tx.produto.findFirst({
-          where: { categoria: 'AGUA_20L' },
-        });
-
-        if (produtoAgua) {
-          const todosCheios = await tx.estoqueGarrafao.aggregate({
-            where: { status: 'CHEIO' },
-            _sum: { quantidade: true },
-          });
-          const totalCheios = todosCheios._sum.quantidade || 0;
-
-          await tx.estoqueProduto.upsert({
-            where: { produtoId: produtoAgua.id },
-            update: { quantidadeAtual: totalCheios },
-            create: { produtoId: produtoAgua.id, quantidadeAtual: totalCheios, quantidadeMinima: 10 },
-          });
-        }
-      }
 
       return { sucesso: true };
     });

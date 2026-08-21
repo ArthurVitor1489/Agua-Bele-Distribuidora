@@ -95,16 +95,16 @@ export async function GET() {
       .filter((g) => g.status === 'CHEIO')
       .reduce((acc, g) => acc + g.quantidade, 0);
 
-    // Garante que o produto de Agua (AGUA_20L) reflete a quantidade real exata de garrafoes CHEIOS dos lotes
-    const produtoAgua = produtosComEstoque.find((p) => p.categoria === 'AGUA_20L');
-    if (produtoAgua && (produtoAgua.estoque?.quantidadeAtual !== sumCheios)) {
-      await prisma.estoqueProduto.upsert({
-        where: { produtoId: produtoAgua.id },
-        update: { quantidadeAtual: sumCheios },
-        create: { produtoId: produtoAgua.id, quantidadeAtual: sumCheios, quantidadeMinima: 10 },
-      });
-      if (produtoAgua.estoque) {
-        produtoAgua.estoque.quantidadeAtual = sumCheios;
+    // Se nao houver nenhum lote CHEIO no deposito, garante que os saldos de agua fiquem em 0
+    if (sumCheios === 0) {
+      for (const p of produtosComEstoque) {
+        if (p.categoria === 'AGUA_20L' && p.estoque && p.estoque.quantidadeAtual > 0) {
+          await prisma.estoqueProduto.update({
+            where: { produtoId: p.id },
+            data: { quantidadeAtual: 0 },
+          });
+          p.estoque.quantidadeAtual = 0;
+        }
       }
     }
 
