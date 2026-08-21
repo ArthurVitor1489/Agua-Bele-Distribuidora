@@ -358,17 +358,6 @@ export default function EstoquePage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Assistente 0: Ajuste / Calibragem Manual de Saldo (Spec #Sugestao2) */}
-          <button
-            type="button"
-            onClick={() => setAjusteModalOpen(true)}
-            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm shadow-amber-500/20 transition-all active:scale-[0.98]"
-            title="Ajustar ou calibrar a quantidade real física de garrafões vazios, cheios ou produtos"
-          >
-            <Wrench className="w-4 h-4" />
-            <span>Ajustar Saldo Manual</span>
-          </button>
-
           {/* Assistente 1: Carga / Envase Diário Multi-Produto */}
           <button
             type="button"
@@ -1111,102 +1100,7 @@ export default function EstoquePage() {
         </form>
       </Modal>
 
-      {/* ========================================================================= */}
-      {/* MODAL 4: Ajuste / Calibragem Manual de Estoque (Sugestão 2)               */}
-      {/* ========================================================================= */}
-      <Modal
-        isOpen={ajusteModalOpen}
-        onClose={() => setAjusteModalOpen(false)}
-        title="Ajuste / Calibragem Manual de Estoque"
-        subtitle="Corrija diretamente a quantidade real física sem precisar zerar o banco de dados"
-        maxWidth="md"
-      >
-        <form onSubmit={handleSalvarAjusteManual} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              O que você deseja recalibrar / corrigir? *
-            </label>
-            <select
-              value={ajusteTarget}
-              onChange={(e: any) => setAjusteTarget(e.target.value)}
-              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold"
-            >
-              <option value="GARRAFAO_VAZIO">🪣 Garrafões Vazios (Depósito)</option>
-              <option value="GARRAFAO_CHEIO">💧 Garrafões Cheios (Água Envasada)</option>
-              <option value="GARRAFAO_DANIFICADO">⚠️ Garrafões Danificados (Avarias)</option>
-              <option value="PRODUTO">🛒 Produto Específico (Outras marcas/insumos)</option>
-            </select>
-          </div>
 
-          {ajusteTarget === 'PRODUTO' && (
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Selecione o Produto *</label>
-              <select
-                required
-                value={ajusteProdutoId}
-                onChange={(e) => setAjusteProdutoId(e.target.value)}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-              >
-                <option value="">Selecione um produto...</option>
-                {estoqueData?.produtos?.map((p: any) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nome} (Atual: {p.estoque?.quantidadeAtual || 0} {p.unidade})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Quantidade Real Física Encontrada no Depósito *
-            </label>
-            <input
-              type="number"
-              min={0}
-              required
-              value={ajusteQuantidadeReal === 0 ? '' : ajusteQuantidadeReal}
-              onFocus={(e) => e.target.select()}
-              onChange={(e) => setAjusteQuantidadeReal(e.target.value === '' ? 0 : Number(e.target.value))}
-              className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 shadow-xs focus:ring-2 focus:ring-amber-500"
-            />
-            <span className="text-[11px] text-slate-500 block mt-1">
-              O sistema atualizará o saldo exatamente para esta quantidade informada.
-            </span>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Motivo / Justificativa da Correção *
-            </label>
-            <input
-              type="text"
-              required
-              value={ajusteMotivo}
-              onChange={(e) => setAjusteMotivo(e.target.value)}
-              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-            />
-          </div>
-
-          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => setAjusteModalOpen(false)}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={salvandoAjuste}
-              className="px-4 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-sm flex items-center gap-1.5"
-            >
-              {salvandoAjuste ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Wrench className="w-3.5 h-3.5" />}
-              <span>Salvar Calibragem</span>
-            </button>
-          </div>
-        </form>
-      </Modal>
 
       {/* ========================================================================= */}
       {/* MODAL 5: Editar Lote Específico de Garrafões (Sugestão 1)                  */}
