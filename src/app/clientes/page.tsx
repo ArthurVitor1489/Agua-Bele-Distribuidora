@@ -63,8 +63,8 @@ export default function ClientesPage() {
     numero: '',
     complemento: '',
     bairro: '',
-    cidade: 'João Pessoa',
-    estado: 'PB',
+    cidade: '',
+    estado: '',
     pontoReferencia: '',
     observacoes: '',
     ativo: true,
@@ -129,8 +129,8 @@ export default function ClientesPage() {
       numero: '',
       complemento: '',
       bairro: '',
-      cidade: 'João Pessoa',
-      estado: 'PB',
+      cidade: '',
+      estado: '',
       pontoReferencia: '',
       observacoes: '',
       ativo: true,
@@ -159,8 +159,8 @@ export default function ClientesPage() {
       numero: cli.numero || '',
       complemento: cli.complemento || '',
       bairro: cli.bairro || '',
-      cidade: cli.cidade || 'João Pessoa',
-      estado: cli.estado || 'PB',
+      cidade: cli.cidade || '',
+      estado: cli.estado || '',
       pontoReferencia: cli.pontoReferencia || '',
       observacoes: cli.observacoes || '',
       ativo: cli.ativo ?? true,
@@ -621,8 +621,8 @@ export default function ClientesPage() {
                             ...prev,
                             logradouro: data.logradouro || prev.logradouro,
                             bairro: data.bairro || prev.bairro,
-                            cidade: data.localidade || 'João Pessoa',
-                            estado: data.uf || 'PB',
+                            cidade: data.localidade || prev.cidade,
+                            estado: data.uf || prev.estado,
                           }));
                         }
                       })
@@ -685,6 +685,7 @@ export default function ClientesPage() {
                 value={formData.cidade}
                 onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                placeholder="Ex: João Pessoa"
               />
             </div>
 
@@ -694,7 +695,8 @@ export default function ClientesPage() {
                 type="text"
                 value={formData.estado}
                 onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg uppercase"
+                placeholder="Ex: PB"
               />
             </div>
 
