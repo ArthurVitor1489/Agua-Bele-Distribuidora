@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   PackagePlus,
   RefreshCw,
+  LogOut,
 } from 'lucide-react';
 import { PwaInstaller } from './PwaInstaller';
 
@@ -56,9 +57,23 @@ export function Header() {
         </div>
       </div>
 
-      {/* Relógio e Data */}
+      {/* Relógio e Data + Botão Sair */}
       <div className="flex items-center gap-3">
-        {/* Espaço reservado para ações adicionais no futuro */}
+        <button
+          type="button"
+          onClick={async () => {
+            const confirmou = window.confirm('Deseja encerrar sua sessão no sistema?');
+            if (confirmou) {
+              await fetch('/api/auth/logout', { method: 'POST' });
+              window.location.href = '/login';
+            }
+          }}
+          className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg border border-slate-200 transition-colors"
+          title="Encerrar sessão no sistema"
+        >
+          <LogOut className="w-3.5 h-3.5 text-rose-500" />
+          <span>Sair</span>
+        </button>
       </div>
     </header>
   );
