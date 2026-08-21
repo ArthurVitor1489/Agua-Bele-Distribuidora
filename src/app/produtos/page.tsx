@@ -98,12 +98,33 @@ export default function ProdutosPage() {
       if (res.ok) {
         setModalOpen(false);
         fetchProdutos();
-      } else {
-        const err = await res.json();
-        alert(err.error || 'Erro ao salvar produto');
       }
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
+    }
+  };
+
+  const handleExcluirProduto = async (prod: any) => {
+    const confirmacao = window.confirm(`Tem certeza que deseja EXCLUIR o produto "${prod.nome}"?`);
+    if (!confirmacao) return;
+
+    try {
+      const res = await fetch(`/api/produtos/${prod.id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.inativado) {
+          alert(`O produto "${prod.nome}" possui histórico de vendas e foi inativado para preservar seus relatórios.`);
+        }
+        fetchProdutos();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Erro ao excluir produto');
+      }
+    } catch (e) {
+      console.error('Erro ao excluir produto:', e);
     }
   };
 
@@ -209,14 +230,24 @@ export default function ProdutosPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEdit(prod)}
-                        className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md"
-                        title="Editar produto"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(prod)}
+                          className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-md transition-colors"
+                          title="Editar produto"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleExcluirProduto(prod)}
+                          className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                          title="Excluir produto"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
