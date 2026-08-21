@@ -568,7 +568,7 @@ export default function EstoquePage() {
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
             <div>
               <h3 className="font-bold text-slate-900 text-sm">
-                Lotes de Vasilhames por Ano de Fabricação & Validade
+                Lotes de Vasilhames por Fabricação
               </h3>
             </div>
 
@@ -585,7 +585,6 @@ export default function EstoquePage() {
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase">
                 <tr>
                   <th className="px-3 py-2.5">Fabricação</th>
-                  <th className="px-3 py-2.5">Validade (3 anos)</th>
                   <th className="px-3 py-2.5">Quantidade</th>
                   <th className="px-3 py-2.5 text-center">Situação</th>
                   <th className="px-3 py-2.5">Observações</th>
@@ -595,32 +594,23 @@ export default function EstoquePage() {
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-6 text-slate-400">
+                    <td colSpan={5} className="text-center py-6 text-slate-400">
                       <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-1 text-brand-600" />
                       Carregando lotes...
                     </td>
                   </tr>
                 ) : estoqueData?.garrafoes?.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-6 text-slate-400">
+                    <td colSpan={5} className="text-center py-6 text-slate-400">
                       Nenhum lote de garrafão cadastrado.
                     </td>
                   </tr>
                 ) : (
                   estoqueData?.garrafoes?.map((lote: EstoqueGarrafaoDTO) => {
-                    const isVencendo = lote.anoValidade <= anoAtual + 1 && !['VENCIDO', 'DESCARTADO'].includes(lote.status);
                     return (
                       <tr key={lote.id} className="hover:bg-slate-50">
                         <td className="px-3 py-2.5 font-bold text-slate-900 font-mono">
                           Lote {lote.anoFabricacao}
-                        </td>
-                        <td className="px-3 py-2.5 font-mono">
-                          <span className={isVencendo ? 'text-amber-700 font-bold' : 'text-slate-700'}>
-                            {lote.anoValidade}
-                          </span>
-                          {isVencendo && (
-                            <span className="text-[10px] text-amber-600 block">Próximo do vencimento</span>
-                          )}
                         </td>
                         <td className="px-3 py-2.5 font-bold text-slate-900">
                           {lote.quantidade} un
