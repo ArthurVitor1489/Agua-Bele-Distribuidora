@@ -52,6 +52,7 @@ export interface PedidoItemDTO {
   id?: string;
   produtoId: string;
   produtoNome?: string;
+  produto?: any;
   quantidade: number;
   valorUnitario: number;
   desconto?: number;

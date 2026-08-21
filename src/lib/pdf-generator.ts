@@ -102,7 +102,8 @@ export async function gerarPdfPedido(pedido: PedidoDTO, empresa = {
       doc.setFillColor(248, 250, 252);
       doc.rect(14, currentY, 182, 7, 'F');
     }
-    doc.text(item.produtoNome || 'Água Mineral Galão 20L', 18, currentY + 5);
+    const nomeProduto = item.produto?.nome || item.produtoNome || 'Água Mineral Galão 20L';
+    doc.text(nomeProduto, 18, currentY + 5);
     doc.text(String(item.quantidade), 115, currentY + 5, { align: 'center' });
     doc.text(`R$ ${Number(item.valorUnitario).toFixed(2)}`, 145, currentY + 5, { align: 'right' });
     doc.text(`R$ ${Number(item.total).toFixed(2)}`, 190, currentY + 5, { align: 'right' });

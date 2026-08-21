@@ -472,7 +472,7 @@ function PedidosContent() {
                     <td className="px-4 py-3 max-w-xs">
                       {p.itens.map((item, idx) => (
                         <div key={idx} className="text-[11px] text-slate-700 truncate">
-                          <strong>{item.quantidade}x</strong> {item.produtoNome || 'Água 20L'}
+                          <strong>{item.quantidade}x</strong> {item.produto?.nome || item.produtoNome || 'Água 20L'}
                         </div>
                       ))}
                     </td>
