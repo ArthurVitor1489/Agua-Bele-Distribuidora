@@ -131,12 +131,13 @@ function PedidosContent() {
       alert('Você precisa cadastrar pelo menos 1 produto no menu "Produtos" antes de criar um pedido.');
       return;
     }
-    setSelectedClienteId(initialClienteId || '');
+    const clienteInicial = initialClienteId || '';
+    setSelectedClienteId(clienteInicial);
     setPedidoItens([
       {
         produtoId: produtos[0].id,
         quantidade: 1,
-        valorUnitario: produtos[0].precoVenda,
+        valorUnitario: getItemPrice(produtos[0].id, clienteInicial),
       },
     ]);
     setDesconto(0);
@@ -154,17 +155,17 @@ function PedidosContent() {
     return Math.max(0, calcularSubtotal() - Number(desconto || 0) + Number(acrescimo || 0));
   };
 
-  // Lógica de Preço Especial por Cliente
+  // Lógica de Preço por Cliente
   const getItemPrice = (produtoId: string, clienteId: string) => {
-    const prod = produtos.find((p) => p.id === produtoId);
+    if (!clienteId) return 0;
     const selectedCliente = clientes.find((c) => c.id === clienteId);
     const esp = selectedCliente?.precosEspeciais?.find((pe: any) => pe.produtoId === produtoId);
-    return esp ? esp.preco : (prod ? prod.precoVenda : 0);
+    return esp ? esp.preco : 0;
   };
 
   // Recalcular preços dos itens se o cliente for alterado
   useEffect(() => {
-    if (selectedClienteId && createModalOpen) {
+    if (createModalOpen) {
       setPedidoItens((prev) =>
         prev.map((item) => ({
           ...item,
@@ -542,11 +543,14 @@ function PedidosContent() {
                     className="flex-1 text-xs p-1.5 bg-slate-50 border border-slate-200 rounded-md font-semibold text-slate-800"
                   >
                     <option value="" disabled>Selecione um produto...</option>
-                    {produtos.map((prod) => (
-                      <option key={prod.id} value={prod.id}>
-                        {prod.nome} (R$ {Number(prod.precoVenda).toFixed(2)})
-                      </option>
-                    ))}
+                    {produtos.map((prod) => {
+                      const preco = selectedClienteId ? getItemPrice(prod.id, selectedClienteId) : 0;
+                      return (
+                        <option key={prod.id} value={prod.id}>
+                          {prod.nome} {preco > 0 ? `(R$ ${preco.toFixed(2)})` : ''}
+                        </option>
+                      );
+                    })}
                   </select>
 
                   <div className="flex items-center gap-1">
@@ -555,19 +559,23 @@ function PedidosContent() {
                       type="number"
                       min={1}
                       value={item.quantidade}
+                      onFocus={(e) => e.target.select()}
                       onChange={(e) => handleItemChange(index, 'quantidade', e.target.value)}
-                      className="w-16 text-xs p-1.5 bg-slate-50 border border-slate-200 rounded-md text-center"
+                      className="w-16 text-xs p-1.5 bg-slate-50 border border-slate-200 rounded-md text-center font-bold"
                     />
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-slate-400">R$:</span>
+                    <span className="text-xs text-slate-400 font-bold">R$:</span>
                     <input
                       type="number"
                       step="0.01"
-                      value={item.valorUnitario}
-                      onChange={(e) => handleItemChange(index, 'valorUnitario', e.target.value)}
-                      className="w-20 text-xs p-1.5 bg-slate-50 border border-slate-200 rounded-md text-right"
+                      min={0}
+                      value={item.valorUnitario === 0 ? '' : item.valorUnitario}
+                      placeholder="0,00"
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => handleItemChange(index, 'valorUnitario', e.target.value === '' ? 0 : Number(e.target.value))}
+                      className="w-20 text-xs p-1.5 bg-white border border-slate-300 rounded-md text-right font-bold text-emerald-700 focus:ring-1 focus:ring-emerald-500 shadow-xs"
                     />
                   </div>
 
