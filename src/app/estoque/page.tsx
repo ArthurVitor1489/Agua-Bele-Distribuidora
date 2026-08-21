@@ -793,9 +793,10 @@ export default function EstoquePage() {
                 type="number"
                 required
                 min={1}
-                value={quantidadeEntrada}
-                onChange={(e) => setQuantidadeEntrada(Number(e.target.value))}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold"
+                value={quantidadeEntrada === 0 ? '' : quantidadeEntrada}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setQuantidadeEntrada(e.target.value === '' ? 0 : Number(e.target.value))}
+                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold shadow-xs focus:ring-2 focus:ring-brand-500"
               />
             </div>
 
@@ -920,9 +921,10 @@ export default function EstoquePage() {
                 type="number"
                 required
                 min={1}
-                value={quantidadeMov}
-                onChange={(e) => setQuantidadeMov(Number(e.target.value))}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold"
+                value={quantidadeMov === 0 ? '' : quantidadeMov}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setQuantidadeMov(e.target.value === '' ? 0 : Number(e.target.value))}
+                className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold shadow-xs focus:ring-2 focus:ring-brand-500"
               />
             </div>
           </div>
