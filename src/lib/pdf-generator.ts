@@ -13,7 +13,7 @@ async function fetchEmpresaConfig() {
         ].filter(Boolean).join(', ');
 
         return {
-          nome: data.nomeEmpresa || 'Aguabelle - fabricação e comércio de águas Ltda',
+          nome: data.nomeEmpresa || 'Aguabelle - Fabricação e Comércio de Águas Ltda',
           cnpj: data.cnpj || '34.194.297/0001-95',
           telefone: data.telefone || '+55 83 9177-5672',
           endereco: enderecoCompleto || 'Rua José Firmino da Silva 1415, Jardim Paulistano - CEP: 58415-245',
@@ -26,7 +26,7 @@ async function fetchEmpresaConfig() {
   }
 
   return {
-    nome: 'Aguabelle - fabricação e comércio de águas Ltda',
+    nome: 'Aguabelle - Fabricação e Comércio de Águas Ltda',
     cnpj: '34.194.297/0001-95',
     telefone: '+55 83 9177-5672',
     endereco: 'Rua José Firmino da Silva 1415, Jardim Paulistano - CEP: 58415-245',
@@ -56,7 +56,7 @@ export async function gerarPdfPedido(pedido: PedidoDTO, empresaCustom?: any) {
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
-  doc.text(empresa.nome || 'Aguabelle - fabricação e comércio de águas Ltda', 14, 11);
+  doc.text(empresa.nome || 'Aguabelle - Fabricação e Comércio de Águas Ltda', 14, 11);
   doc.setFontSize(8.5);
   doc.setFont('helvetica', 'normal');
   doc.text(`CNPJ: ${empresa.cnpj || '34.194.297/0001-95'} | Fone/WhatsApp: ${empresa.telefone || '+55 83 9177-5672'}`, 14, 18);
