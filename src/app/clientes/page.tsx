@@ -608,7 +608,27 @@ export default function ClientesPage() {
               <input
                 type="text"
                 value={formData.cep}
-                onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData({ ...formData, cep: val });
+                  const cleanCep = val.replace(/\D/g, '');
+                  if (cleanCep.length === 8) {
+                    fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+                      .then((r) => r.json())
+                      .then((data) => {
+                        if (!data.erro) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            logradouro: data.logradouro || prev.logradouro,
+                            bairro: data.bairro || prev.bairro,
+                            cidade: data.localidade || 'João Pessoa',
+                            estado: data.uf || 'PB',
+                          }));
+                        }
+                      })
+                      .catch((e) => console.error(e));
+                  }
+                }}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
                 placeholder="58000-000"
               />
