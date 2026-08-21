@@ -338,7 +338,6 @@ export default function FiadosPage() {
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-              placeholder="Ex: Pagamento parcial entregue em mãos ao motorista"
             />
           </div>
 

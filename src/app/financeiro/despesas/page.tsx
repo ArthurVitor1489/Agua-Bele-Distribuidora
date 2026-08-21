@@ -383,7 +383,6 @@ export default function DespesasPage() {
               value={formData.descricao}
               onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
               className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
-              placeholder="Ex: Abastecimento caminhão diesel S10"
             />
           </div>
 
@@ -486,7 +485,6 @@ export default function DespesasPage() {
                     value={formData.fornecedorBoleto}
                     onChange={(e) => setFormData({ ...formData, fornecedorBoleto: e.target.value })}
                     className="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg"
-                    placeholder="Ex: Petrobras Distribuidora ou Fábrica de Tampas"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -499,7 +497,6 @@ export default function DespesasPage() {
                       value={formData.numeroBoleto}
                       onChange={(e) => setFormData({ ...formData, numeroBoleto: e.target.value })}
                       className="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg"
-                      placeholder="Ex: BOL-FORN-902"
                     />
                   </div>
                   <div>

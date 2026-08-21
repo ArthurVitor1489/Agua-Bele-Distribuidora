@@ -274,7 +274,6 @@ export default function ProdutosPage() {
               value={formData.nome}
               onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
               className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
-              placeholder="Ex: Água Mineral Galão 20L"
             />
           </div>
 

@@ -541,7 +541,6 @@ export default function ClientesPage() {
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
-                placeholder="Ex: Arthur Vitor ou Restaurante Sabor do Mar"
               />
             </div>
 
@@ -641,7 +640,6 @@ export default function ClientesPage() {
                 value={formData.bairro}
                 onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                placeholder="Ex: Manaíra, Cabo Branco, Tambiá"
               />
             </div>
 
@@ -652,7 +650,6 @@ export default function ClientesPage() {
                 value={formData.logradouro}
                 onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                placeholder="Ex: Av. Epitácio Pessoa ou Rua Principal"
               />
             </div>
 
@@ -663,7 +660,6 @@ export default function ClientesPage() {
                 value={formData.numero}
                 onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                placeholder="Ex: 1200 ou S/N"
               />
             </div>
 
@@ -674,7 +670,6 @@ export default function ClientesPage() {
                 value={formData.complemento}
                 onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                placeholder="Ex: Sala 402, Apto 101, Térreo"
               />
             </div>
 
@@ -685,7 +680,6 @@ export default function ClientesPage() {
                 value={formData.cidade}
                 onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                placeholder="Ex: João Pessoa"
               />
             </div>
 
@@ -696,7 +690,6 @@ export default function ClientesPage() {
                 value={formData.estado}
                 onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg uppercase"
-                placeholder="Ex: PB"
               />
             </div>
 
@@ -709,7 +702,6 @@ export default function ClientesPage() {
                 value={formData.pontoReferencia}
                 onChange={(e) => setFormData({ ...formData, pontoReferencia: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                placeholder="Ex: Próximo à Praça da Paz / Posto Shell"
               />
             </div>
 
@@ -722,7 +714,6 @@ export default function ClientesPage() {
                 value={formData.observacoes}
                 onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                placeholder="Ex: Horário preferencial de entrega das 08h às 11h"
               />
             </div>
           </div>

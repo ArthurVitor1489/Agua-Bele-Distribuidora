@@ -722,7 +722,6 @@ export default function EstoquePage() {
               value={motivoCarga}
               onChange={(e) => setMotivoCarga(e.target.value)}
               className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg"
-              placeholder="Ex: Carga recebida da fábrica"
             />
           </div>
 
@@ -824,7 +823,6 @@ export default function EstoquePage() {
               value={obsEntrada}
               onChange={(e) => setObsEntrada(e.target.value)}
               className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-              placeholder="Ex: Compra de 100 garrafões novos da fábrica"
             />
           </div>
 
@@ -953,7 +951,6 @@ export default function EstoquePage() {
               value={motivoMov}
               onChange={(e) => setMotivoMov(e.target.value)}
               className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-              placeholder="Ex: Envase de lote matutino ou trinca no gargalo"
             />
           </div>
 

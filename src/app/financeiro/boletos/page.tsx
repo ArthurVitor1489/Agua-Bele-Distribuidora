@@ -308,7 +308,6 @@ export default function BoletosPage() {
               value={obsBaixa}
               onChange={(e) => setObsBaixa(e.target.value)}
               className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-              placeholder="Ex: Identificado no extrato bancário Bradesco"
             />
           </div>
 

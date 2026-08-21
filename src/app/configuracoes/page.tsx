@@ -110,7 +110,6 @@ export default function ConfiguracoesPage() {
                   value={config.nomeEmpresa || ''}
                   onChange={(e) => setConfig({ ...config, nomeEmpresa: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold"
-                  placeholder="Ex: Água Belle — Distribuidora de Água"
                 />
               </div>
 
@@ -132,7 +131,7 @@ export default function ConfiguracoesPage() {
                   value={config.inscricaoEstadual || ''}
                   onChange={(e) => setConfig({ ...config, inscricaoEstadual: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono"
-                  placeholder="Ex: 16.123.456-7 ou Isento"
+                  placeholder="000.000.000.000"
                 />
               </div>
 
@@ -143,7 +142,7 @@ export default function ConfiguracoesPage() {
                   value={config.telefone || ''}
                   onChange={(e) => setConfig({ ...config, telefone: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                  placeholder="Ex: (83) 98888-7777"
+                  placeholder="(00) 00000-0000"
                 />
               </div>
 
@@ -156,7 +155,7 @@ export default function ConfiguracoesPage() {
                   value={config.chavePix || ''}
                   onChange={(e) => setConfig({ ...config, chavePix: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-brand-700 font-bold"
-                  placeholder="Ex: CNPJ, E-mail, Celular ou Chave Aleatória"
+                  placeholder="CNPJ, E-mail, Celular ou Chave Aleatória"
                 />
               </div>
 
@@ -167,7 +166,6 @@ export default function ConfiguracoesPage() {
                   value={config.endereco || ''}
                   onChange={(e) => setConfig({ ...config, endereco: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                  placeholder="Ex: Av. Epitácio Pessoa, 1000 - Centro"
                 />
               </div>
 
@@ -178,7 +176,6 @@ export default function ConfiguracoesPage() {
                   value={config.cidade || ''}
                   onChange={(e) => setConfig({ ...config, cidade: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-                  placeholder="Ex: João Pessoa"
                 />
               </div>
 
@@ -189,7 +186,6 @@ export default function ConfiguracoesPage() {
                   value={config.estado || ''}
                   onChange={(e) => setConfig({ ...config, estado: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg uppercase"
-                  placeholder="Ex: PB"
                 />
               </div>
             </div>

@@ -703,7 +703,6 @@ function PedidosContent() {
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg"
-              placeholder="Ex: Entregar pela manhã. Portão preto."
             />
           </div>
 
@@ -798,7 +797,6 @@ function PedidosContent() {
                     value={numeroBoleto}
                     onChange={(e) => setNumeroBoleto(e.target.value)}
                     className="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg"
-                    placeholder="Ex: BOL-2026-001"
                   />
                 </div>
                 <div>
