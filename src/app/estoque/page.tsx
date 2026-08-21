@@ -8,6 +8,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Trash2,
+  Edit2,
+  Wrench,
   Calendar,
   Clock,
   RefreshCw,
@@ -56,6 +58,111 @@ export default function EstoquePage() {
   const [quantidadeMov, setQuantidadeMov] = useState(10);
   const [produtoMovimentacaoId, setProdutoMovimentacaoId] = useState('');
   const [motivoMov, setMotivoMov] = useState('');
+
+  // Modal 4: Ajuste / Calibragem Manual de Estoque (Sugestão 2)
+  const [ajusteModalOpen, setAjusteModalOpen] = useState(false);
+  const [ajusteTarget, setAjusteTarget] = useState<'GARRAFAO_VAZIO' | 'GARRAFAO_CHEIO' | 'GARRAFAO_DANIFICADO' | 'PRODUTO'>('GARRAFAO_VAZIO');
+  const [ajusteProdutoId, setAjusteProdutoId] = useState('');
+  const [ajusteQuantidadeReal, setAjusteQuantidadeReal] = useState<number>(0);
+  const [ajusteMotivo, setAjusteMotivo] = useState('Correção de contagem / erro de digitação');
+  const [salvandoAjuste, setSalvandoAjuste] = useState(false);
+
+  // Modal 5: Editar Lote de Garrafões (Sugestão 1)
+  const [editLoteModalOpen, setEditLoteModalOpen] = useState(false);
+  const [editingLote, setEditingLote] = useState<any | null>(null);
+  const [editLoteQuantidade, setEditLoteQuantidade] = useState<number>(0);
+  const [editLoteStatus, setEditLoteStatus] = useState<StatusGarrafao>('VAZIO');
+  const [editLoteAno, setEditLoteAno] = useState<number>(new Date().getFullYear());
+  const [editLoteObs, setEditLoteObs] = useState('');
+  const [salvandoEditLote, setSalvandoEditLote] = useState(false);
+
+  const handleOpenEditLote = (lote: any) => {
+    setEditingLote(lote);
+    setEditLoteQuantidade(lote.quantidade);
+    setEditLoteStatus(lote.status);
+    setEditLoteAno(lote.anoFabricacao);
+    setEditLoteObs(lote.observacoes || '');
+    setEditLoteModalOpen(true);
+  };
+
+  const handleSalvarEditLote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLote) return;
+    setSalvandoEditLote(true);
+    try {
+      const res = await fetch(`/api/estoque/garrafoes/${editingLote.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quantidade: editLoteQuantidade,
+          status: editLoteStatus,
+          anoFabricacao: editLoteAno,
+          observacoes: editLoteObs,
+        }),
+      });
+
+      if (res.ok) {
+        setEditLoteModalOpen(false);
+        fetchEstoque();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Erro ao atualizar lote');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSalvandoEditLote(false);
+    }
+  };
+
+  const handleExcluirLoteGarrafao = async (lote: any) => {
+    const confirmacao = window.confirm(`Tem certeza que deseja EXCLUIR este lote de garrafões (${lote.status} - Lote ${lote.anoFabricacao} - ${lote.quantidade} un)?`);
+    if (!confirmacao) return;
+
+    try {
+      const res = await fetch(`/api/estoque/garrafoes/${lote.id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        fetchEstoque();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Erro ao excluir lote');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSalvarAjusteManual = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSalvandoAjuste(true);
+    try {
+      const res = await fetch('/api/estoque/ajuste', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target: ajusteTarget,
+          produtoId: ajusteTarget === 'PRODUTO' ? ajusteProdutoId : undefined,
+          quantidadeReal: ajusteQuantidadeReal,
+          motivo: ajusteMotivo,
+        }),
+      });
+
+      if (res.ok) {
+        setAjusteModalOpen(false);
+        fetchEstoque();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Erro ao realizar ajuste de estoque');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSalvandoAjuste(false);
+    }
+  };
 
   const fetchEstoque = async () => {
     setLoading(true);
@@ -251,6 +358,17 @@ export default function EstoquePage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Assistente 0: Ajuste / Calibragem Manual de Saldo (Spec #Sugestao2) */}
+          <button
+            type="button"
+            onClick={() => setAjusteModalOpen(true)}
+            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm shadow-amber-500/20 transition-all active:scale-[0.98]"
+            title="Ajustar ou calibrar a quantidade real física de garrafões vazios, cheios ou produtos"
+          >
+            <Wrench className="w-4 h-4" />
+            <span>Ajustar Saldo Manual</span>
+          </button>
+
           {/* Assistente 1: Carga / Envase Diário Multi-Produto */}
           <button
             type="button"
@@ -479,19 +597,20 @@ export default function EstoquePage() {
                   <th className="px-3 py-2.5">Quantidade</th>
                   <th className="px-3 py-2.5 text-center">Situação</th>
                   <th className="px-3 py-2.5">Observações</th>
+                  <th className="px-3 py-2.5 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-6 text-slate-400">
+                    <td colSpan={6} className="text-center py-6 text-slate-400">
                       <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-1 text-brand-600" />
                       Carregando lotes...
                     </td>
                   </tr>
                 ) : estoqueData?.garrafoes?.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-6 text-slate-400">
+                    <td colSpan={6} className="text-center py-6 text-slate-400">
                       Nenhum lote de garrafão cadastrado.
                     </td>
                   </tr>
@@ -519,6 +638,26 @@ export default function EstoquePage() {
                         </td>
                         <td className="px-3 py-2.5 text-slate-500 max-w-xs truncate">
                           {lote.observacoes || '—'}
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditLote(lote)}
+                              className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-md transition-colors"
+                              title="Editar quantidade ou situação deste lote"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleExcluirLoteGarrafao(lote)}
+                              className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                              title="Excluir este lote de garrafões"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -967,6 +1106,188 @@ export default function EstoquePage() {
               className="px-4 py-2 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-lg shadow-sm"
             >
               Confirmar Movimentação
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ========================================================================= */}
+      {/* MODAL 4: Ajuste / Calibragem Manual de Estoque (Sugestão 2)               */}
+      {/* ========================================================================= */}
+      <Modal
+        isOpen={ajusteModalOpen}
+        onClose={() => setAjusteModalOpen(false)}
+        title="Ajuste / Calibragem Manual de Estoque"
+        subtitle="Corrija diretamente a quantidade real física sem precisar zerar o banco de dados"
+        maxWidth="md"
+      >
+        <form onSubmit={handleSalvarAjusteManual} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              O que você deseja recalibrar / corrigir? *
+            </label>
+            <select
+              value={ajusteTarget}
+              onChange={(e: any) => setAjusteTarget(e.target.value)}
+              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold"
+            >
+              <option value="GARRAFAO_VAZIO">🪣 Garrafões Vazios (Depósito)</option>
+              <option value="GARRAFAO_CHEIO">💧 Garrafões Cheios (Água Envasada)</option>
+              <option value="GARRAFAO_DANIFICADO">⚠️ Garrafões Danificados (Avarias)</option>
+              <option value="PRODUTO">🛒 Produto Específico (Outras marcas/insumos)</option>
+            </select>
+          </div>
+
+          {ajusteTarget === 'PRODUTO' && (
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Selecione o Produto *</label>
+              <select
+                required
+                value={ajusteProdutoId}
+                onChange={(e) => setAjusteProdutoId(e.target.value)}
+                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+              >
+                <option value="">Selecione um produto...</option>
+                {estoqueData?.produtos?.map((p: any) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nome} (Atual: {p.estoque?.quantidadeAtual || 0} {p.unidade})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Quantidade Real Física Encontrada no Depósito *
+            </label>
+            <input
+              type="number"
+              min={0}
+              required
+              value={ajusteQuantidadeReal === 0 ? '' : ajusteQuantidadeReal}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => setAjusteQuantidadeReal(e.target.value === '' ? 0 : Number(e.target.value))}
+              className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 shadow-xs focus:ring-2 focus:ring-amber-500"
+            />
+            <span className="text-[11px] text-slate-500 block mt-1">
+              O sistema atualizará o saldo exatamente para esta quantidade informada.
+            </span>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Motivo / Justificativa da Correção *
+            </label>
+            <input
+              type="text"
+              required
+              value={ajusteMotivo}
+              onChange={(e) => setAjusteMotivo(e.target.value)}
+              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+            />
+          </div>
+
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setAjusteModalOpen(false)}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={salvandoAjuste}
+              className="px-4 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-sm flex items-center gap-1.5"
+            >
+              {salvandoAjuste ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Wrench className="w-3.5 h-3.5" />}
+              <span>Salvar Calibragem</span>
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ========================================================================= */}
+      {/* MODAL 5: Editar Lote Específico de Garrafões (Sugestão 1)                  */}
+      {/* ========================================================================= */}
+      <Modal
+        isOpen={editLoteModalOpen}
+        onClose={() => setEditLoteModalOpen(false)}
+        title={`Editar Lote de Garrafões (${editingLote?.status || ''})`}
+        subtitle="Altere a quantidade, situação ou ano de fabricação deste lote específico"
+        maxWidth="md"
+      >
+        <form onSubmit={handleSalvarEditLote} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Ano de Fabricação *</label>
+              <input
+                type="number"
+                required
+                min={2000}
+                max={2100}
+                value={editLoteAno}
+                onChange={(e) => setEditLoteAno(Number(e.target.value))}
+                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Situação *</label>
+              <select
+                value={editLoteStatus}
+                onChange={(e: any) => setEditLoteStatus(e.target.value)}
+                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-semibold"
+              >
+                <option value="VAZIO">VAZIO (Pronto p/ envase)</option>
+                <option value="CHEIO">CHEIO (Envasado)</option>
+                <option value="DANIFICADO">DANIFICADO (Avaria / Trincado)</option>
+                <option value="DESCARTE">DESCARTE (Vencido / Descartado)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Quantidade de Unidades deste Lote *
+            </label>
+            <input
+              type="number"
+              min={0}
+              required
+              value={editLoteQuantidade === 0 ? '' : editLoteQuantidade}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => setEditLoteQuantidade(e.target.value === '' ? 0 : Number(e.target.value))}
+              className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 shadow-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Observações do Lote</label>
+            <input
+              type="text"
+              value={editLoteObs}
+              onChange={(e) => setEditLoteObs(e.target.value)}
+              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+            />
+          </div>
+
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setEditLoteModalOpen(false)}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={salvandoEditLote}
+              className="px-4 py-2 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-lg shadow-sm flex items-center gap-1.5"
+            >
+              {salvandoEditLote ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Edit2 className="w-3.5 h-3.5" />}
+              <span>Salvar Alterações</span>
             </button>
           </div>
         </form>
