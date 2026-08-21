@@ -12,6 +12,10 @@ import {
   Wrench,
   Building,
   RefreshCw,
+  Pencil,
+  Trash2,
+  CheckCircle2,
+  Clock,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
@@ -23,8 +27,9 @@ export default function DespesasPage() {
   const [categoriaFilter, setCategoriaFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Modal Nova Despesa
+  // Modal Nova / Edição de Despesa
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingDespesa, setEditingDespesa] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     categoria: 'COMBUSTIVEL' as CategoriaDespesa,
     descricao: '',
@@ -61,6 +66,82 @@ export default function DespesasPage() {
     fetchDespesas();
   }, [categoriaFilter]);
 
+  const handleOpenCreate = () => {
+    setEditingDespesa(null);
+    setFormData({
+      categoria: 'COMBUSTIVEL',
+      descricao: '',
+      valor: 0,
+      data: new Date().toISOString().slice(0, 10),
+      formaPagamento: 'PIX',
+      status: 'PAGA',
+      observacoes: '',
+      isBoletoPagar: false,
+      fornecedorBoleto: '',
+      numeroBoleto: '',
+      vencimentoBoleto: '',
+    });
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (despesa: any) => {
+    setEditingDespesa(despesa);
+    setFormData({
+      categoria: despesa.categoria,
+      descricao: despesa.descricao,
+      valor: despesa.valor,
+      data: new Date(despesa.data).toISOString().slice(0, 10),
+      formaPagamento: despesa.formaPagamento || 'PIX',
+      status: despesa.status,
+      observacoes: despesa.observacoes || '',
+      isBoletoPagar: Boolean(despesa.boletoPagar),
+      fornecedorBoleto: despesa.boletoPagar?.fornecedor || '',
+      numeroBoleto: despesa.boletoPagar?.numero || '',
+      vencimentoBoleto: despesa.boletoPagar?.dataVencimento ? new Date(despesa.boletoPagar.dataVencimento).toISOString().slice(0, 10) : '',
+    });
+    setModalOpen(true);
+  };
+
+  const handleToggleStatus = async (despesa: any) => {
+    const novoStatus = despesa.status === 'PAGA' ? 'PENDENTE' : 'PAGA';
+    try {
+      const res = await fetch(`/api/financeiro/despesas/${despesa.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: novoStatus }),
+      });
+
+      if (res.ok) {
+        fetchDespesas();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Erro ao alterar status da despesa');
+      }
+    } catch (e) {
+      console.error('Erro ao alterar status:', e);
+    }
+  };
+
+  const handleExcluirDespesa = async (despesa: any) => {
+    const confirmacao = window.confirm(`Tem certeza que deseja EXCLUIR a despesa "${despesa.descricao}"?`);
+    if (!confirmacao) return;
+
+    try {
+      const res = await fetch(`/api/financeiro/despesas/${despesa.id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        fetchDespesas();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Erro ao excluir despesa');
+      }
+    } catch (e) {
+      console.error('Erro ao excluir despesa:', e);
+    }
+  };
+
   const handleSalvarDespesa = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -82,14 +163,18 @@ export default function DespesasPage() {
         };
       }
 
-      const res = await fetch('/api/financeiro/despesas', {
-        method: 'POST',
+      const url = editingDespesa ? `/api/financeiro/despesas/${editingDespesa.id}` : '/api/financeiro/despesas';
+      const method = editingDespesa ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         setModalOpen(false);
+        setEditingDespesa(null);
         setFormData({
           categoria: 'COMBUSTIVEL',
           descricao: '',
@@ -106,7 +191,7 @@ export default function DespesasPage() {
         fetchDespesas();
       } else {
         const err = await res.json();
-        alert(err.error || 'Erro ao lançar despesa');
+        alert(err.error || 'Erro ao salvar despesa');
       }
     } catch (e) {
       console.error(e);
@@ -149,7 +234,7 @@ export default function DespesasPage() {
 
           <button
             type="button"
-            onClick={() => setModalOpen(true)}
+            onClick={handleOpenCreate}
             className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm shadow-rose-500/20 transition-all"
           >
             <Plus className="w-4 h-4" /> Nova Despesa
@@ -200,19 +285,20 @@ export default function DespesasPage() {
                 <th className="px-4 py-3 text-right font-bold text-rose-900">Valor (R$)</th>
                 <th className="px-4 py-3 text-center">Status</th>
                 <th className="px-4 py-3">Observações</th>
+                <th className="px-4 py-3 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-slate-400">
+                  <td colSpan={8} className="text-center py-8 text-slate-400">
                     <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
                     Carregando despesas...
                   </td>
                 </tr>
               ) : despesas.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-slate-400">
+                  <td colSpan={8} className="text-center py-8 text-slate-400">
                     Nenhuma despesa registrada.
                   </td>
                 </tr>
@@ -238,12 +324,39 @@ export default function DespesasPage() {
                       {formatCurrency(d.valor)}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <Badge variant={d.status === 'PAGA' ? 'success' : 'warning'}>
-                        {d.status}
-                      </Badge>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleStatus(d)}
+                        className="transition-transform active:scale-95 cursor-pointer"
+                        title="Clique para alternar o status entre PAGA e PENDENTE"
+                      >
+                        <Badge variant={d.status === 'PAGA' ? 'success' : 'warning'}>
+                          {d.status}
+                        </Badge>
+                      </button>
                     </td>
                     <td className="px-4 py-3 text-slate-500 max-w-xs truncate">
                       {d.observacoes || '—'}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(d)}
+                          className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-md transition-colors"
+                          title="Editar Despesa / Alterar Status"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleExcluirDespesa(d)}
+                          className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                          title="Excluir Despesa"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -253,12 +366,12 @@ export default function DespesasPage() {
         </div>
       </div>
 
-      {/* Modal Nova Despesa (Spec #26 & #27) */}
+      {/* Modal Nova / Edição de Despesa (Spec #26 & #27) */}
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Lançamento de Despesa Operacional"
-        subtitle="Registre gastos da Água Belle ou boletos de fornecedores a pagar"
+        title={editingDespesa ? 'Editar Despesa Operacional' : 'Lançamento de Despesa Operacional'}
+        subtitle={editingDespesa ? 'Altere o status, valor, categoria ou observações do gasto' : 'Registre gastos da Água Belle ou boletos de fornecedores a pagar'}
         maxWidth="md"
       >
         <form onSubmit={handleSalvarDespesa} className="space-y-4">
