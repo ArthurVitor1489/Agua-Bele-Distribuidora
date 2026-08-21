@@ -92,7 +92,7 @@ export async function GET() {
     });
 
     const totalAguaEstoque = produtosComEstoque
-      .filter((p) => p.categoria === 'AGUA_25L')
+      .filter((p) => p.categoria === 'AGUA_20L')
       .reduce((acc, p) => acc + (p.estoque?.quantidadeAtual || 0), 0);
 
     // Se houver qualquer divergência de registro histórico entre EstoqueProduto e EstoqueGarrafao (CHEIO),

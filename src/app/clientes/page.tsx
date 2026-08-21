@@ -863,7 +863,7 @@ export default function ClientesPage() {
                         <td className="p-2.5">
                           {p.itens.map((i: any) => (
                             <div key={i.id} className="text-[11px] text-slate-700">
-                              {i.quantidade}x {i.produto?.nome || 'Água 25L'}
+                              {i.quantidade}x {i.produto?.nome || 'Água 20L'}
                             </div>
                           ))}
                         </td>

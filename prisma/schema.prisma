@@ -44,7 +44,7 @@ model Cliente {
 model Produto {
   id              String                @id @default(uuid())
   nome            String
-  categoria       String                @default("AGUA_25L")
+  categoria       String                @default("AGUA_20L")
   unidade         String                @default("UN")
   precoVenda      Float
   ativo           Boolean               @default(true)

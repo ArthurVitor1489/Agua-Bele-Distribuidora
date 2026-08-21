@@ -34,12 +34,12 @@ async function main() {
 
   // 3. Produtos
   const produtoAgua = await prisma.produto.upsert({
-    where: { id: 'prod-agua-25l' },
+    where: { id: 'prod-agua-20l' },
     update: {},
     create: {
-      id: 'prod-agua-25l',
-      nome: 'Água Mineral Galão 25 Litros',
-      categoria: 'AGUA_25L',
+      id: 'prod-agua-20l',
+      nome: 'Água Mineral Galão 20 Litros',
+      categoria: 'AGUA_20L',
       unidade: 'GL',
       precoVenda: 12.00,
       ativo: true,
@@ -52,7 +52,7 @@ async function main() {
     update: {},
     create: {
       id: 'prod-garrafao-novo',
-      nome: 'Garrafão 25L Novo (Vasilhame)',
+      nome: 'Garrafão 20L Novo (Vasilhame)',
       categoria: 'GARRAFAO_NOVO',
       unidade: 'UN',
       precoVenda: 35.00,
@@ -480,7 +480,7 @@ async function main() {
       itens: {
         create: [
           {
-            descricao: 'Tampa de vedação anti-violação 25L (Pacote 1000 un)',
+            descricao: 'Tampa de vedação anti-violação 20L (Pacote 1000 un)',
             quantidade: 2,
             valorUnitario: 425.00,
             valorTotal: 850.00,

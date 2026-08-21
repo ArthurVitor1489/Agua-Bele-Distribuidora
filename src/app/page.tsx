@@ -316,7 +316,7 @@ export default function DashboardPage() {
               <Boxes className="w-4 h-4 text-brand-600" />
               <div>
                 <h3 className="font-bold text-slate-900 text-sm">
-                  Estoque de Garrafões de 25L (Controle por Quantidade/Lote)
+                  Estoque de Garrafões de 20L (Controle por Quantidade/Lote)
                 </h3>
                 <p className="text-xs text-slate-500">
                   Garrafões não possuem rastreio individual. Validade de 3 anos a partir da fabricação.

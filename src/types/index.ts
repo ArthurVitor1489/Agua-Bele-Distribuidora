@@ -15,7 +15,7 @@ export type TipoMovimentacaoEstoque =
   | 'DANIFICADO' 
   | 'DESCARTE';
 
-export type CategoriaProduto = 'AGUA_25L' | 'GARRAFAO_NOVO' | 'SUPORTE' | 'BOMBA' | 'ACESSORIO' | 'OUTRO';
+export type CategoriaProduto = 'AGUA_20L' | 'GARRAFAO_NOVO' | 'SUPORTE' | 'BOMBA' | 'ACESSORIO' | 'OUTRO';
 
 export type CategoriaDespesa = 
   | 'COMBUSTIVEL' 

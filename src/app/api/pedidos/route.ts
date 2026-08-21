@@ -175,10 +175,10 @@ export async function POST(request: Request) {
         },
       });
 
-      // 5. Movimentação de Garrafões para itens de Água 25L
-      // Regra #38: Pedido de 25 águas -> Reduz 25 águas, Reduz 25 garrafões cheios, Aumenta 25 garrafões vazios
+      // 5. Movimentação de Garrafões para itens de Água 20L
+      // Regra #38: Pedido de 20 águas -> Reduz 20 águas, Reduz 20 garrafões cheios, Aumenta 20 garrafões vazios
       const qtdTotalAgua = itensValidados
-        .filter((iv) => iv.categoria === 'AGUA_25L')
+        .filter((iv) => iv.categoria === 'AGUA_20L')
         .reduce((acc, iv) => acc + iv.quantidade, 0);
 
       if (qtdTotalAgua > 0) {

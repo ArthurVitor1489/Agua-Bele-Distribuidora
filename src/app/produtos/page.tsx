@@ -25,7 +25,7 @@ export default function ProdutosPage() {
 
   const [formData, setFormData] = useState({
     nome: '',
-    categoria: 'AGUA_25L',
+    categoria: 'AGUA_20L',
     unidade: 'GL',
     precoVenda: 12.00,
     estoqueInicial: 0,
@@ -57,7 +57,7 @@ export default function ProdutosPage() {
     setEditingProduto(null);
     setFormData({
       nome: '',
-      categoria: 'AGUA_25L',
+      categoria: 'AGUA_20L',
       unidade: 'GL',
       precoVenda: 12.00,
       estoqueInicial: 0,
@@ -243,7 +243,7 @@ export default function ProdutosPage() {
               value={formData.nome}
               onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
               className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
-              placeholder="Ex: Água Mineral Galão 25L"
+              placeholder="Ex: Água Mineral Galão 20L"
             />
           </div>
 
@@ -255,7 +255,7 @@ export default function ProdutosPage() {
                 onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
               >
-                <option value="AGUA_25L">Água 25L</option>
+                <option value="AGUA_20L">Água 20L</option>
                 <option value="GARRAFAO_NOVO">Garrafão Novo (Vasilhame)</option>
                 <option value="SUPORTE">Suporte</option>
                 <option value="BOMBA">Bomba</option>

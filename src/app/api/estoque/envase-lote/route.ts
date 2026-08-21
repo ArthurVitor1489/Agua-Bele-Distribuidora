@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
         if (!produto) continue;
 
-        if (produto.categoria === 'AGUA_25L') {
+        if (produto.categoria === 'AGUA_20L') {
           totalQtdAgua += qtd;
         }
 

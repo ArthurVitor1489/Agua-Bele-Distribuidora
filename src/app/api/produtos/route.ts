@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       const p = await tx.produto.create({
         data: {
           nome: body.nome.trim(),
-          categoria: body.categoria || 'AGUA_25L',
+          categoria: body.categoria || 'AGUA_20L',
           unidade: body.unidade || 'UN',
           precoVenda,
           ativo: body.ativo !== undefined ? Boolean(body.ativo) : true,

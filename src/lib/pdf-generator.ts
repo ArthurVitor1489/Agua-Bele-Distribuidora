@@ -30,7 +30,7 @@ export async function gerarPdfPedido(pedido: PedidoDTO, empresa = {
   doc.text('ÁGUA BELLE', 14, 13);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('Distribuidora de Água Mineral em Galões de 25L', 14, 20);
+  doc.text('Distribuidora de Água Mineral em Galões de 20L', 14, 20);
   doc.text(`CNPJ: ${empresa.cnpj} | Fone: ${empresa.telefone}`, 14, 25);
 
   // Pedido Info Box Right Header
@@ -102,7 +102,7 @@ export async function gerarPdfPedido(pedido: PedidoDTO, empresa = {
       doc.setFillColor(248, 250, 252);
       doc.rect(14, currentY, 182, 7, 'F');
     }
-    doc.text(item.produtoNome || 'Água Mineral Galão 25L', 18, currentY + 5);
+    doc.text(item.produtoNome || 'Água Mineral Galão 20L', 18, currentY + 5);
     doc.text(String(item.quantidade), 115, currentY + 5, { align: 'center' });
     doc.text(`R$ ${Number(item.valorUnitario).toFixed(2)}`, 145, currentY + 5, { align: 'right' });
     doc.text(`R$ ${Number(item.total).toFixed(2)}`, 190, currentY + 5, { align: 'right' });

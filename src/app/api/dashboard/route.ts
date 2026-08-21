@@ -151,7 +151,7 @@ export async function GET(request: Request) {
 
     // 8. Estoque Resumo (Água e Garrafões)
     const estoqueAgua = await prisma.estoqueProduto.findFirst({
-      where: { produto: { categoria: 'AGUA_25L' } },
+      where: { produto: { categoria: 'AGUA_20L' } },
     });
 
     const garrafoes = await prisma.estoqueGarrafao.findMany();

@@ -41,7 +41,7 @@ export async function PUT(
 
         // 2. Estorna movimentação de garrafões de água (devolve cheios, remove vazios)
         const qtdAgua = pedido.itens
-          .filter((i) => i.produto.categoria === 'AGUA_25L')
+          .filter((i) => i.produto.categoria === 'AGUA_20L')
           .reduce((acc, i) => acc + i.quantidade, 0);
 
         if (qtdAgua > 0) {

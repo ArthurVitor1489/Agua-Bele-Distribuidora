@@ -64,8 +64,8 @@ export async function POST(request: Request) {
         },
       });
 
-      // 3. Se for produto da categoria AGUA_25L e foi marcada a opção de envase de garrafões
-      if (produto.categoria === 'AGUA_25L' && tipo === 'ENTRADA' && envasarGarrafoes) {
+      // 3. Se for produto da categoria AGUA_20L e foi marcada a opção de envase de garrafões
+      if (produto.categoria === 'AGUA_20L' && tipo === 'ENTRADA' && envasarGarrafoes) {
         // Debita garrafões vazios se houver
         let restanteParaDebitar = qtd;
         const lotesVazios = await tx.estoqueGarrafao.findMany({

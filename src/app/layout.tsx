@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 
 export const metadata: Metadata = {
   title: 'Água Belle — Sistema de Gestão',
-  description: 'Sistema de gestão da Distribuidora Água Belle (Galões 25L)',
+  description: 'Sistema de gestão da Distribuidora Água Belle (Galões 20L)',
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/manifest.webmanifest',
