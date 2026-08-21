@@ -14,14 +14,14 @@ import {
 
 export default function ConfiguracoesPage() {
   const [config, setConfig] = useState({
-    nomeEmpresa: 'Água Belle — Distribuidora de Água',
-    cnpj: '34.892.120/0001-45',
-    inscricaoEstadual: '16.123.456-7',
-    telefone: '(83) 98765-4321',
-    endereco: 'Rua das Fontes Cristalinas, 250 - Tambauzinho',
-    cidade: 'João Pessoa',
-    estado: 'PB',
-    chavePix: 'financeiro@aguabelle.com.br',
+    nomeEmpresa: '',
+    cnpj: '',
+    inscricaoEstadual: '',
+    telefone: '',
+    endereco: '',
+    cidade: '',
+    estado: '',
+    chavePix: '',
   });
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -107,10 +107,10 @@ export default function ConfiguracoesPage() {
                 </label>
                 <input
                   type="text"
-                  required
-                  value={config.nomeEmpresa}
+                  value={config.nomeEmpresa || ''}
                   onChange={(e) => setConfig({ ...config, nomeEmpresa: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold"
+                  placeholder="Ex: Água Belle — Distribuidora de Água"
                 />
               </div>
 
@@ -143,6 +143,7 @@ export default function ConfiguracoesPage() {
                   value={config.telefone || ''}
                   onChange={(e) => setConfig({ ...config, telefone: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                  placeholder="Ex: (83) 98888-7777"
                 />
               </div>
 
@@ -166,6 +167,7 @@ export default function ConfiguracoesPage() {
                   value={config.endereco || ''}
                   onChange={(e) => setConfig({ ...config, endereco: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                  placeholder="Ex: Av. Epitácio Pessoa, 1000 - Centro"
                 />
               </div>
 
@@ -173,9 +175,10 @@ export default function ConfiguracoesPage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1">Cidade</label>
                 <input
                   type="text"
-                  value={config.cidade || 'João Pessoa'}
+                  value={config.cidade || ''}
                   onChange={(e) => setConfig({ ...config, cidade: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                  placeholder="Ex: João Pessoa"
                 />
               </div>
 
@@ -183,9 +186,10 @@ export default function ConfiguracoesPage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1">Estado (UF)</label>
                 <input
                   type="text"
-                  value={config.estado || 'PB'}
+                  value={config.estado || ''}
                   onChange={(e) => setConfig({ ...config, estado: e.target.value })}
-                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg uppercase"
+                  placeholder="Ex: PB"
                 />
               </div>
             </div>

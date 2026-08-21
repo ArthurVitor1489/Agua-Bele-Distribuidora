@@ -32,14 +32,14 @@ export async function PUT(request: Request) {
       },
       create: {
         id: 'default',
-        nomeEmpresa: body.nomeEmpresa || 'Água Belle — Distribuidora de Água',
-        cnpj: body.cnpj || '34.892.120/0001-45',
-        inscricaoEstadual: body.inscricaoEstadual || '16.123.456-7',
-        telefone: body.telefone || '(83) 98765-4321',
-        endereco: body.endereco || 'Rua das Fontes Cristalinas, 250 - Tambauzinho',
-        cidade: body.cidade || 'João Pessoa',
-        estado: body.estado || 'PB',
-        chavePix: body.chavePix || 'financeiro@aguabelle.com.br',
+        nomeEmpresa: body.nomeEmpresa || '',
+        cnpj: body.cnpj || '',
+        inscricaoEstadual: body.inscricaoEstadual || '',
+        telefone: body.telefone || '',
+        endereco: body.endereco || '',
+        cidade: body.cidade || '',
+        estado: body.estado || '',
+        chavePix: body.chavePix || '',
       },
     });
 
