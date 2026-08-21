@@ -6,24 +6,22 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// Garantir que a variavel de ambiente DATABASE_URL sempre exista no processo Node.js
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.TURSO_DATABASE_URL || 'file:./dev.db';
+}
+
 function createPrismaClient(): PrismaClient {
-  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
+  const tursoUrl = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
   const authToken = process.env.TURSO_AUTH_TOKEN;
 
-  if (url && (url.startsWith('libsql:') || url.startsWith('https:')) && authToken) {
-    if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = url;
-    }
+  if (tursoUrl && (tursoUrl.startsWith('libsql:') || tursoUrl.startsWith('https:')) && authToken) {
     const libsql = createClient({
-      url,
-      authToken,
+      url: tursoUrl,
+      authToken: authToken,
     });
     const adapter = new PrismaLibSql(libsql as any);
     return new PrismaClient({ adapter, log: ['error'] });
-  }
-
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = 'file:./dev.db';
   }
 
   return new PrismaClient({ log: ['error'] });
