@@ -256,13 +256,14 @@ model NotaFiscalItem {
 }
 
 model Configuracao {
-  id          String   @id @default("default")
-  nomeEmpresa String   @default("Água Belle — Distribuidora de Água")
-  cnpj        String?  @default("12.345.678/0001-90")
-  telefone    String?  @default("(83) 98888-7777")
-  endereco    String?  @default("Av. Principal, 1000 - Centro")
-  cidade      String?  @default("João Pessoa")
-  estado      String?  @default("PB")
-  chavePix    String?  @default("pix@aguabelle.com.br")
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default("default")
+  nomeEmpresa       String   @default("Água Belle — Distribuidora de Água")
+  cnpj              String?  @default("12.345.678/0001-90")
+  inscricaoEstadual String?  @default("16.123.456-7")
+  telefone          String?  @default("(83) 98888-7777")
+  endereco          String?  @default("Av. Principal, 1000 - Centro")
+  cidade            String?  @default("João Pessoa")
+  estado            String?  @default("PB")
+  chavePix          String?  @default("pix@aguabelle.com.br")
+  updatedAt         DateTime @updatedAt
 }

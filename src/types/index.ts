@@ -224,3 +224,15 @@ export interface DashboardMetricsDTO {
     tributosDestacados: number;
   };
 }
+
+export interface ConfiguracaoDTO {
+  id: string;
+  nomeEmpresa: string;
+  cnpj?: string | null;
+  inscricaoEstadual?: string | null;
+  telefone?: string | null;
+  endereco?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  chavePix?: string | null;
+}

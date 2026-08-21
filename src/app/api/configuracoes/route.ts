@@ -23,6 +23,7 @@ export async function PUT(request: Request) {
       update: {
         nomeEmpresa: body.nomeEmpresa,
         cnpj: body.cnpj,
+        inscricaoEstadual: body.inscricaoEstadual,
         telefone: body.telefone,
         endereco: body.endereco,
         cidade: body.cidade,
@@ -33,6 +34,7 @@ export async function PUT(request: Request) {
         id: 'default',
         nomeEmpresa: body.nomeEmpresa || 'Água Belle — Distribuidora de Água',
         cnpj: body.cnpj || '34.892.120/0001-45',
+        inscricaoEstadual: body.inscricaoEstadual || '16.123.456-7',
         telefone: body.telefone || '(83) 98765-4321',
         endereco: body.endereco || 'Rua das Fontes Cristalinas, 250 - Tambauzinho',
         cidade: body.cidade || 'João Pessoa',

@@ -16,6 +16,7 @@ export default function ConfiguracoesPage() {
   const [config, setConfig] = useState({
     nomeEmpresa: 'Água Belle — Distribuidora de Água',
     cnpj: '34.892.120/0001-45',
+    inscricaoEstadual: '16.123.456-7',
     telefone: '(83) 98765-4321',
     endereco: 'Rua das Fontes Cristalinas, 250 - Tambauzinho',
     cidade: 'João Pessoa',
@@ -120,6 +121,18 @@ export default function ConfiguracoesPage() {
                   value={config.cnpj || ''}
                   onChange={(e) => setConfig({ ...config, cnpj: e.target.value })}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono"
+                  placeholder="00.000.000/0000-00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Inscrição Estadual (I.E.)</label>
+                <input
+                  type="text"
+                  value={config.inscricaoEstadual || ''}
+                  onChange={(e) => setConfig({ ...config, inscricaoEstadual: e.target.value })}
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono"
+                  placeholder="Ex: 16.123.456-7 ou Isento"
                 />
               </div>
 
