@@ -495,13 +495,6 @@ export default function ClientesPage() {
                         >
                           Histórico
                         </button>
-                        <Link
-                          href={`/pedidos?action=new&clienteId=${cli.id}`}
-                          className="px-2 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md transition-colors"
-                          title="Novo pedido para este cliente"
-                        >
-                          + Pedido
-                        </Link>
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(cli)}
