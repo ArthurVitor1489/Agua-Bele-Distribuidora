@@ -47,7 +47,7 @@ export default function EstoquePage() {
   // Modal 2: Entrada de Lote Novo de Garrafões (Spec #36)
   const [entradaModalOpen, setEntradaModalOpen] = useState(false);
   const [anoFabricacao, setAnoFabricacao] = useState(new Date().getFullYear());
-  const [quantidadeEntrada, setQuantidadeEntrada] = useState(100);
+  const [quantidadeEntrada, setQuantidadeEntrada] = useState<number>(0);
   const [statusEntrada, setStatusEntrada] = useState<StatusGarrafao>('VAZIO');
   const [obsEntrada, setObsEntrada] = useState('');
 
@@ -55,7 +55,7 @@ export default function EstoquePage() {
   const [movimentarModalOpen, setMovimentarModalOpen] = useState(false);
   const [loteOrigemId, setLoteOrigemId] = useState('');
   const [statusDestino, setStatusDestino] = useState<StatusGarrafao>('CHEIO');
-  const [quantidadeMov, setQuantidadeMov] = useState(10);
+  const [quantidadeMov, setQuantidadeMov] = useState<number>(0);
   const [produtoMovimentacaoId, setProdutoMovimentacaoId] = useState('');
   const [motivoMov, setMotivoMov] = useState('');
 
