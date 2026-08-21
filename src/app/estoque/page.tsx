@@ -635,14 +635,6 @@ export default function EstoquePage() {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               type="button"
-                              onClick={() => handleOpenEditLote(lote)}
-                              className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-md transition-colors"
-                              title="Editar quantidade ou situação deste lote"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              type="button"
                               onClick={() => handleExcluirLoteGarrafao(lote)}
                               className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
                               title="Excluir este lote de garrafões"
@@ -1105,111 +1097,7 @@ export default function EstoquePage() {
 
 
 
-      {/* ========================================================================= */}
-      {/* MODAL 5: Editar Lote Específico de Garrafões (Sugestão 1)                  */}
-      {/* ========================================================================= */}
-      <Modal
-        isOpen={editLoteModalOpen}
-        onClose={() => setEditLoteModalOpen(false)}
-        title={`Editar Lote de Garrafões (${editingLote?.status || ''})`}
-        subtitle="Altere a quantidade, situação ou ano de fabricação deste lote específico"
-        maxWidth="md"
-      >
-        <form onSubmit={handleSalvarEditLote} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Ano de Fabricação *</label>
-              <input
-                type="number"
-                required
-                min={2000}
-                max={2100}
-                value={editLoteAno}
-                onChange={(e) => setEditLoteAno(Number(e.target.value))}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold"
-              />
-            </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Situação *</label>
-              <select
-                value={editLoteStatus}
-                onChange={(e: any) => setEditLoteStatus(e.target.value)}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-semibold"
-              >
-                <option value="VAZIO">VAZIO (Pronto p/ envase)</option>
-                <option value="CHEIO">CHEIO (Envasado)</option>
-                <option value="DANIFICADO">DANIFICADO (Avaria / Trincado)</option>
-                <option value="DESCARTE">DESCARTE (Vencido / Descartado)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Quantidade de Unidades deste Lote *
-            </label>
-            <input
-              type="number"
-              min={0}
-              required
-              value={editLoteQuantidade === 0 ? '' : editLoteQuantidade}
-              onFocus={(e) => e.target.select()}
-              onChange={(e) => setEditLoteQuantidade(e.target.value === '' ? 0 : Number(e.target.value))}
-              className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 shadow-xs"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Marca de Água a Subtrair / Ajustar (Opcional)
-            </label>
-            <select
-              value={editLoteProdutoId}
-              onChange={(e) => setEditLoteProdutoId(e.target.value)}
-              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-medium"
-            >
-              <option value="">Nenhuma marca específica (Ajustar apenas o lote de garrafões)</option>
-              {estoqueData?.produtos?.map((p: any) => (
-                <option key={p.id} value={p.id}>
-                  Subtrair / Ajustar no produto: {p.nome} (Atual: {p.estoque?.quantidadeAtual || 0} GL)
-                </option>
-              ))}
-            </select>
-            <span className="text-[11px] text-slate-500 block mt-1">
-              Selecione a marca que deseja subtrair (ex: AGUABELLE ou SUBLIME) para abater a diferença do saldo.
-            </span>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Observações do Lote</label>
-            <input
-              type="text"
-              value={editLoteObs}
-              onChange={(e) => setEditLoteObs(e.target.value)}
-              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg"
-            />
-          </div>
-
-          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => setEditLoteModalOpen(false)}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={salvandoEditLote}
-              className="px-4 py-2 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-lg shadow-sm flex items-center gap-1.5"
-            >
-              {salvandoEditLote ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Edit2 className="w-3.5 h-3.5" />}
-              <span>Salvar Alterações</span>
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 }
