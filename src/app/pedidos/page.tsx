@@ -135,9 +135,9 @@ function PedidosContent() {
     setSelectedClienteId(clienteInicial);
     setPedidoItens([
       {
-        produtoId: produtos[0].id,
+        produtoId: '',
         quantidade: 1,
-        valorUnitario: getItemPrice(produtos[0].id, clienteInicial),
+        valorUnitario: 0,
       },
     ]);
     setDesconto(0);
@@ -157,7 +157,7 @@ function PedidosContent() {
 
   // Lógica de Preço por Cliente
   const getItemPrice = (produtoId: string, clienteId: string) => {
-    if (!clienteId) return 0;
+    if (!clienteId || !produtoId) return 0;
     const selectedCliente = clientes.find((c) => c.id === clienteId);
     const esp = selectedCliente?.precosEspeciais?.find((pe: any) => pe.produtoId === produtoId);
     return esp ? esp.preco : 0;
@@ -177,11 +177,9 @@ function PedidosContent() {
 
   const handleAddItem = () => {
     if (produtos.length === 0) return;
-    const prodPadrao = produtos[0];
-    const preco = getItemPrice(prodPadrao.id, selectedClienteId);
     setPedidoItens([
       ...pedidoItens,
-      { produtoId: prodPadrao.id, quantidade: 1, valorUnitario: preco },
+      { produtoId: '', quantidade: 1, valorUnitario: 0 },
     ]);
   };
 
@@ -214,6 +212,12 @@ function PedidosContent() {
       return;
     }
 
+    const itensValidos = pedidoItens.filter((i) => i.produtoId && Number(i.quantidade) > 0);
+    if (itensValidos.length === 0) {
+      alert('Por favor, selecione pelo menos 1 produto no pedido.');
+      return;
+    }
+
     setSalvandoPedido(true);
     try {
       const res = await fetch('/api/pedidos', {
@@ -221,7 +225,7 @@ function PedidosContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clienteId: selectedClienteId,
-          itens: pedidoItens,
+          itens: itensValidos,
           desconto: Number(desconto),
           acrescimo: Number(acrescimo),
           observacoes,
