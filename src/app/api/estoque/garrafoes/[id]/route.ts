@@ -44,7 +44,7 @@ export async function PUT(
         },
       });
 
-      // Registrar histórico de ajuste
+      // Registrar histórico de ajuste no lote de garrafões
       await tx.movimentacaoEstoque.create({
         data: {
           tipo: 'AJUSTE',
@@ -53,6 +53,37 @@ export async function PUT(
           motivo: body.motivo || `Ajuste manual de saldo no lote ${anoFinal} (${statusFinal}) de ${lote.quantidade} para ${novaQtd}`,
         },
       });
+
+      // Se uma marca de produto específica foi selecionada para abater/acrescentar o saldo
+      const produtoId = body.produtoId;
+      const deltaQtd = novaQtd - lote.quantidade;
+
+      if (produtoId && deltaQtd !== 0) {
+        const produto = await tx.produto.findUnique({
+          where: { id: produtoId },
+          include: { estoque: true },
+        });
+
+        if (produto) {
+          const qtdAtual = produto.estoque?.quantidadeAtual || 0;
+          const novaQtdProduto = Math.max(0, qtdAtual + deltaQtd);
+
+          await tx.estoqueProduto.upsert({
+            where: { produtoId: produto.id },
+            update: { quantidadeAtual: novaQtdProduto },
+            create: { produtoId: produto.id, quantidadeAtual: novaQtdProduto, quantidadeMinima: 10 },
+          });
+
+          await tx.movimentacaoEstoque.create({
+            data: {
+              tipo: deltaQtd > 0 ? 'ENTRADA' : 'SAIDA',
+              quantidade: Math.abs(deltaQtd),
+              produtoId: produto.id,
+              motivo: body.motivo || `Ajuste manual de ${Math.abs(deltaQtd)} un no produto ${produto.nome}`,
+            },
+          });
+        }
+      }
 
       return loteAtualizado;
     });

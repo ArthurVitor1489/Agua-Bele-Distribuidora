@@ -73,6 +73,7 @@ export default function EstoquePage() {
   const [editLoteQuantidade, setEditLoteQuantidade] = useState<number>(0);
   const [editLoteStatus, setEditLoteStatus] = useState<StatusGarrafao>('VAZIO');
   const [editLoteAno, setEditLoteAno] = useState<number>(new Date().getFullYear());
+  const [editLoteProdutoId, setEditLoteProdutoId] = useState('');
   const [editLoteObs, setEditLoteObs] = useState('');
   const [salvandoEditLote, setSalvandoEditLote] = useState(false);
 
@@ -81,6 +82,7 @@ export default function EstoquePage() {
     setEditLoteQuantidade(lote.quantidade);
     setEditLoteStatus(lote.status);
     setEditLoteAno(lote.anoFabricacao);
+    setEditLoteProdutoId('');
     setEditLoteObs(lote.observacoes || '');
     setEditLoteModalOpen(true);
   };
@@ -97,6 +99,7 @@ export default function EstoquePage() {
           quantidade: editLoteQuantidade,
           status: editLoteStatus,
           anoFabricacao: editLoteAno,
+          produtoId: editLoteProdutoId || undefined,
           observacoes: editLoteObs,
         }),
       });
@@ -1155,6 +1158,27 @@ export default function EstoquePage() {
               onChange={(e) => setEditLoteQuantidade(e.target.value === '' ? 0 : Number(e.target.value))}
               className="w-full text-xs p-2.5 bg-white border border-slate-300 rounded-lg font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 shadow-xs"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Marca de Água a Subtrair / Ajustar (Opcional)
+            </label>
+            <select
+              value={editLoteProdutoId}
+              onChange={(e) => setEditLoteProdutoId(e.target.value)}
+              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-medium"
+            >
+              <option value="">Nenhuma marca específica (Ajustar apenas o lote de garrafões)</option>
+              {estoqueData?.produtos?.map((p: any) => (
+                <option key={p.id} value={p.id}>
+                  Subtrair / Ajustar no produto: {p.nome} (Atual: {p.estoque?.quantidadeAtual || 0} GL)
+                </option>
+              ))}
+            </select>
+            <span className="text-[11px] text-slate-500 block mt-1">
+              Selecione a marca que deseja subtrair (ex: AGUABELLE ou SUBLIME) para abater a diferença do saldo.
+            </span>
           </div>
 
           <div>
