@@ -265,7 +265,7 @@ export default function FiadosPage() {
                             onClick={() => handleOpenPagar(f)}
                             className="px-2.5 py-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors"
                           >
-                            Dar Baixa / Amortizar
+                            Dar Baixa
                           </button>
                         )}
                         <button
