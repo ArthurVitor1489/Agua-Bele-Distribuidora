@@ -266,7 +266,9 @@ export default function EstoquePage() {
             type="button"
             onClick={() => {
               if (estoqueData?.garrafoes?.length > 0) {
-                setLoteOrigemId(estoqueData.garrafoes[0].id);
+                const primeiroLote = estoqueData.garrafoes[0];
+                setLoteOrigemId(primeiroLote.id);
+                setStatusDestino(primeiroLote.status === 'CHEIO' ? 'VAZIO' : 'CHEIO');
               }
               setMovimentarModalOpen(true);
             }}
@@ -905,11 +907,26 @@ export default function EstoquePage() {
                 onChange={(e) => setStatusDestino(e.target.value as StatusGarrafao)}
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-medium"
               >
-                <option value="CHEIO">CHEIO (Envase / Pronto)</option>
-                <option value="VAZIO">VAZIO (Devolução / Troca)</option>
-                <option value="DANIFICADO">DANIFICADO (Avaria / Quebrado sem conserto)</option>
-                <option value="VENCIDO">VENCIDO (Validade Expirada)</option>
-                <option value="DESCARTADO">DESCARTADO (Descarte / Reciclagem)</option>
+                {(() => {
+                  const loteSel = estoqueData?.garrafoes?.find((g: any) => g.id === loteOrigemId);
+                  const statusOrigem = loteSel?.status || '';
+
+                  const opcoes = [
+                    { value: 'CHEIO', label: 'CHEIO (Envase / Pronto)' },
+                    { value: 'VAZIO', label: 'VAZIO (Devolução / Troca)' },
+                    { value: 'DANIFICADO', label: 'DANIFICADO (Avaria / Quebrado)' },
+                    { value: 'VENCIDO', label: 'VENCIDO (Validade Expirada)' },
+                    { value: 'DESCARTADO', label: 'DESCARTADO (Descarte / Reciclagem)' },
+                  ];
+
+                  return opcoes
+                    .filter((op) => op.value !== statusOrigem)
+                    .map((op) => (
+                      <option key={op.value} value={op.value}>
+                        {op.label}
+                      </option>
+                    ));
+                })()}
               </select>
             </div>
 

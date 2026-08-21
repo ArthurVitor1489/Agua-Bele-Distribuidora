@@ -119,8 +119,8 @@ export async function PUT(request: Request) {
         throw new Error('Lote de origem não encontrado.');
       }
 
-      if (loteOrigem.quantidade < qtd) {
-        throw new Error(`Quantidade insuficiente no lote de origem (Disponível: ${loteOrigem.quantidade}).`);
+      if (loteOrigem.status === statusDestino) {
+        throw new Error(`A situação de destino (${statusDestino}) deve ser diferente da situação de origem (${loteOrigem.status}).`);
       }
 
       let produtoRef: any = null;
@@ -130,14 +130,25 @@ export async function PUT(request: Request) {
           include: { estoque: true },
         });
 
-        // Se o garrafão de origem for CHEIO e tiver produtoId, abate do produto específico
-        if (produtoRef && produtoRef.estoque && loteOrigem.status === 'CHEIO') {
-          await tx.estoqueProduto.update({
-            where: { produtoId: produtoRef.id },
-            data: {
-              quantidadeAtual: Math.max(0, produtoRef.estoque.quantidadeAtual - qtd),
-            },
-          });
+        if (produtoRef) {
+          const qtdAtual = produtoRef.estoque?.quantidadeAtual || 0;
+
+          // Se a origem for CHEIO e a destino NÃO for CHEIO (ex: Avaria, Descarte, Vazio), reduz o estoque do produto
+          if (loteOrigem.status === 'CHEIO' && statusDestino !== 'CHEIO') {
+            await tx.estoqueProduto.upsert({
+              where: { produtoId: produtoRef.id },
+              update: { quantidadeAtual: Math.max(0, qtdAtual - qtd) },
+              create: { produtoId: produtoRef.id, quantidadeAtual: 0, quantidadeMinima: 10 },
+            });
+          }
+          // Se a origem NÃO for CHEIO e a destino for CHEIO (Envase / Triagem), soma no estoque do produto
+          else if (loteOrigem.status !== 'CHEIO' && statusDestino === 'CHEIO') {
+            await tx.estoqueProduto.upsert({
+              where: { produtoId: produtoRef.id },
+              update: { quantidadeAtual: qtdAtual + qtd },
+              create: { produtoId: produtoRef.id, quantidadeAtual: qtd, quantidadeMinima: 10 },
+            });
+          }
         }
       }
 

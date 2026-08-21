@@ -95,8 +95,17 @@ export async function GET() {
       .filter((p) => p.categoria === 'AGUA_25L')
       .reduce((acc, p) => acc + (p.estoque?.quantidadeAtual || 0), 0);
 
-    // Se houver qualquer divergência de registro histórico, garante paridade perfeita
-    if (totalAguaEstoque > 0 && consolidadoGarrafoes.CHEIO !== totalAguaEstoque) {
+    // Se houver qualquer divergência de registro histórico entre EstoqueProduto e EstoqueGarrafao (CHEIO),
+    // sincroniza o lote CHEIO no banco para manter paridade perfeita de 100% entre cards e dropdowns!
+    if (consolidadoGarrafoes.CHEIO !== totalAguaEstoque) {
+      let loteCheio = garrafoes.find((g) => g.status === 'CHEIO');
+      if (loteCheio) {
+        await prisma.estoqueGarrafao.update({
+          where: { id: loteCheio.id },
+          data: { quantidade: totalAguaEstoque },
+        });
+        loteCheio.quantidade = totalAguaEstoque;
+      }
       consolidadoGarrafoes.totalGeral += (totalAguaEstoque - consolidadoGarrafoes.CHEIO);
       consolidadoGarrafoes.CHEIO = totalAguaEstoque;
     }
