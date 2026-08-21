@@ -91,24 +91,24 @@ export async function GET() {
       }
     });
 
-    const totalAguaEstoque = produtosComEstoque
-      .filter((p) => p.categoria === 'AGUA_20L')
-      .reduce((acc, p) => acc + (p.estoque?.quantidadeAtual || 0), 0);
+    const sumCheios = garrafoes
+      .filter((g) => g.status === 'CHEIO')
+      .reduce((acc, g) => acc + g.quantidade, 0);
 
-    // Se houver qualquer divergência de registro histórico entre EstoqueProduto e EstoqueGarrafao (CHEIO),
-    // sincroniza o lote CHEIO no banco para manter paridade perfeita de 100% entre cards e dropdowns!
-    if (consolidadoGarrafoes.CHEIO !== totalAguaEstoque) {
-      let loteCheio = garrafoes.find((g) => g.status === 'CHEIO');
-      if (loteCheio) {
-        await prisma.estoqueGarrafao.update({
-          where: { id: loteCheio.id },
-          data: { quantidade: totalAguaEstoque },
-        });
-        loteCheio.quantidade = totalAguaEstoque;
+    // Garante que o produto de Agua (AGUA_20L) reflete a quantidade real exata de garrafoes CHEIOS dos lotes
+    const produtoAgua = produtosComEstoque.find((p) => p.categoria === 'AGUA_20L');
+    if (produtoAgua && (produtoAgua.estoque?.quantidadeAtual !== sumCheios)) {
+      await prisma.estoqueProduto.upsert({
+        where: { produtoId: produtoAgua.id },
+        update: { quantidadeAtual: sumCheios },
+        create: { produtoId: produtoAgua.id, quantidadeAtual: sumCheios, quantidadeMinima: 10 },
+      });
+      if (produtoAgua.estoque) {
+        produtoAgua.estoque.quantidadeAtual = sumCheios;
       }
-      consolidadoGarrafoes.totalGeral += (totalAguaEstoque - consolidadoGarrafoes.CHEIO);
-      consolidadoGarrafoes.CHEIO = totalAguaEstoque;
     }
+
+    consolidadoGarrafoes.CHEIO = sumCheios;
 
     const totalDanificados = consolidadoGarrafoes.DANIFICADO + consolidadoGarrafoes.QUEBRADO;
     consolidadoGarrafoes.taxaAvarias = consolidadoGarrafoes.totalGeral > 0
