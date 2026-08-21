@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Eye,
   Trash2,
+  Pencil,
   Boxes,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
@@ -37,8 +38,9 @@ function PedidosContent() {
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Modal Novo Pedido
+  // Modal Novo / Edição de Pedido
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editingPedido, setEditingPedido] = useState<PedidoDTO | null>(null);
   const [selectedClienteId, setSelectedClienteId] = useState(initialClienteId || '');
   const [pedidoItens, setPedidoItens] = useState<{ produtoId: string; quantidade: number; valorUnitario: number }[]>([]);
   const [desconto, setDesconto] = useState(0);
@@ -131,6 +133,7 @@ function PedidosContent() {
       alert('Você precisa cadastrar pelo menos 1 produto no menu "Produtos" antes de criar um pedido.');
       return;
     }
+    setEditingPedido(null);
     const clienteInicial = initialClienteId || '';
     setSelectedClienteId(clienteInicial);
     setPedidoItens([
@@ -144,6 +147,44 @@ function PedidosContent() {
     setAcrescimo(0);
     setObservacoes('');
     setCreateModalOpen(true);
+  };
+
+  const handleOpenEdit = (pedido: PedidoDTO) => {
+    setEditingPedido(pedido);
+    setSelectedClienteId(pedido.clienteId);
+    setPedidoItens(
+      pedido.itens?.map((i) => ({
+        produtoId: i.produtoId,
+        quantidade: i.quantidade,
+        valorUnitario: i.valorUnitario,
+      })) || []
+    );
+    setDesconto(pedido.desconto || 0);
+    setAcrescimo(pedido.acrescimo || 0);
+    setObservacoes(pedido.observacoes || '');
+    setCreateModalOpen(true);
+  };
+
+  const handleExcluirPedido = async (pedido: PedidoDTO) => {
+    const confirmacao = window.confirm(
+      `Tem certeza que deseja EXCLUIR o Pedido #${pedido.numero}? Os garrafões deste pedido serão estornados para o estoque.`
+    );
+    if (!confirmacao) return;
+
+    try {
+      const res = await fetch(`/api/pedidos/${pedido.id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        fetchPedidos();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Erro ao excluir pedido');
+      }
+    } catch (e) {
+      console.error('Erro ao excluir pedido:', e);
+    }
   };
 
   // Cálculos do Novo Pedido
@@ -165,7 +206,7 @@ function PedidosContent() {
 
   // Recalcular preços dos itens se o cliente for alterado
   useEffect(() => {
-    if (createModalOpen) {
+    if (createModalOpen && !editingPedido) {
       setPedidoItens((prev) =>
         prev.map((item) => ({
           ...item,
@@ -220,8 +261,11 @@ function PedidosContent() {
 
     setSalvandoPedido(true);
     try {
-      const res = await fetch('/api/pedidos', {
-        method: 'POST',
+      const url = editingPedido ? `/api/pedidos/${editingPedido.id}` : '/api/pedidos';
+      const method = editingPedido ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clienteId: selectedClienteId,
@@ -234,6 +278,7 @@ function PedidosContent() {
 
       if (res.ok) {
         setCreateModalOpen(false);
+        setEditingPedido(null);
         setSelectedClienteId('');
         setObservacoes('');
         setDesconto(0);
@@ -241,7 +286,7 @@ function PedidosContent() {
         fetchPedidos();
       } else {
         const err = await res.json();
-        alert(err.error || 'Erro ao criar pedido');
+        alert(err.error || 'Erro ao salvar pedido');
       }
     } catch (e) {
       console.error('Erro:', e);
@@ -461,6 +506,26 @@ function PedidosContent() {
                           <span>Receber Pagamento</span>
                         </button>
 
+                        {/* Editar Pedido */}
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(p)}
+                          className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-md transition-colors"
+                          title="Editar Pedido"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Excluir Pedido */}
+                        <button
+                          type="button"
+                          onClick={() => handleExcluirPedido(p)}
+                          className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                          title="Excluir Pedido (Estorna Estoque)"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+
                         {/* Gerar PDF do Pedido (Spec #42) */}
                         <button
                           type="button"
@@ -489,12 +554,12 @@ function PedidosContent() {
         </div>
       </div>
 
-      {/* Modal Criar Pedido (Spec #13 & #16) */}
+      {/* Modal Criar / Editar Pedido (Spec #13 & #16) */}
       <Modal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        title="Novo Pedido de Água"
-        subtitle="O estoque é debitado imediatamente na confirmação do pedido"
+        title={editingPedido ? `Editar Pedido #${editingPedido.numero}` : 'Novo Pedido de Água'}
+        subtitle={editingPedido ? 'Altere os dados, produtos ou observações do pedido' : 'O estoque é debitado imediatamente na confirmação do pedido'}
         maxWidth="2xl"
       >
         <form onSubmit={handleCriarPedido} className="space-y-4">
@@ -663,7 +728,7 @@ function PedidosContent() {
               className="px-4 py-2 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-lg shadow-sm flex items-center gap-2"
             >
               {salvandoPedido ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-              <span>Criar Pedido e Movimentar Estoque</span>
+              <span>{salvandoPedido ? 'Salvando...' : editingPedido ? 'Salvar Alterações no Pedido' : 'Criar Pedido e Movimentar Estoque'}</span>
             </button>
           </div>
         </form>
