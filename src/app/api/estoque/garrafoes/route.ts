@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     const anoFabricacao = Number(body.anoFabricacao);
     const quantidade = Number(body.quantidade);
-    const status = body.status || 'DISPONIVEL'; // DISPONIVEL, CHEIO, VAZIO, etc.
+    const status = 'VAZIO'; // Entradas de novos garrafões do fabricante são sempre VAZIO por regra de negócio
     const observacoes = body.observacoes?.trim() || null;
 
     if (!anoFabricacao || anoFabricacao < 2000 || anoFabricacao > 2100) {

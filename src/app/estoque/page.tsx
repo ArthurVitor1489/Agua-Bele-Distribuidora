@@ -806,14 +806,12 @@ export default function EstoquePage() {
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 Situação Inicial
               </label>
-              <select
-                value={statusEntrada}
-                onChange={(e) => setStatusEntrada(e.target.value as StatusGarrafao)}
-                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-semibold"
-              >
-                <option value="VAZIO">VAZIO (Pronto p/ envase)</option>
-                <option value="CHEIO">CHEIO (Já envasado)</option>
-              </select>
+              <input
+                type="text"
+                disabled
+                value="VAZIO (Pronto p/ envase)"
+                className="w-full text-xs p-2.5 bg-sky-50 border border-sky-200 rounded-lg text-sky-950 font-bold"
+              />
             </div>
           </div>
 
