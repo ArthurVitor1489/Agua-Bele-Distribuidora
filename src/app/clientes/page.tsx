@@ -705,15 +705,15 @@ export default function ClientesPage() {
             </div>
           </div>
 
-          {/* Seção Preço Especial por Produto (Spec #45) */}
+          {/* Seção Preço por Produto deste Cliente */}
           <div className="pt-3 border-t border-slate-200 space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
                 <DollarSign className="w-4 h-4 text-emerald-600" />
-                <span>Tabela de Preços Personalizados por Produto (Opcional)</span>
+                <span>Tabela de Preço por Produto deste Cliente</span>
               </label>
               <span className="text-[11px] text-slate-500">
-                Preencha apenas se este cliente tiver valor negociado diferenciado.
+                Informe o valor de venda acordado com este cliente.
               </span>
             </div>
 
@@ -725,8 +725,8 @@ export default function ClientesPage() {
                   <div key={prod.id} className="bg-white p-2.5 rounded border border-slate-200 flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <span className="font-bold text-xs text-slate-900 truncate block">{prod.nome}</span>
-                      <span className="text-[11px] text-slate-500 block">
-                        Padrão: {formatCurrency(prod.precoVenda)}
+                      <span className="text-[10px] text-slate-400 block uppercase">
+                        {prod.categoria}
                       </span>
                     </div>
                     <div className="w-28 shrink-0 flex items-center gap-1">
@@ -735,7 +735,7 @@ export default function ClientesPage() {
                         type="number"
                         step="0.01"
                         min="0"
-                        placeholder={prod.precoVenda.toFixed(2)}
+                        placeholder="0,00"
                         value={precosEspeciais[prod.id] || ''}
                         onFocus={(e) => e.target.select()}
                         onChange={(e) => setPrecosEspeciais({
