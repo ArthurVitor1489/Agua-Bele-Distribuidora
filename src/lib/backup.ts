@@ -13,11 +13,13 @@ export interface BackupPayload {
     totalDespesas: number;
     totalNotasFiscais: number;
     totalBoletos: number;
+    totalPrecosEspeciais?: number;
   };
   tabelas: {
     configuracao: any[];
     user: any[];
     clientes: any[];
+    precosEspeciais?: any[];
     produtos: any[];
     estoqueProdutos: any[];
     estoqueGarrafoes: any[];
@@ -41,6 +43,7 @@ export async function gerarBackupCompleto(): Promise<BackupPayload> {
     configuracao,
     user,
     clientes,
+    precosEspeciais,
     produtos,
     estoqueProdutos,
     estoqueGarrafoes,
@@ -60,6 +63,7 @@ export async function gerarBackupCompleto(): Promise<BackupPayload> {
     prisma.configuracao.findMany(),
     prisma.user.findMany(),
     prisma.cliente.findMany(),
+    prisma.clientePrecoProduto.findMany(),
     prisma.produto.findMany(),
     prisma.estoqueProduto.findMany(),
     prisma.estoqueGarrafao.findMany(),
@@ -90,11 +94,13 @@ export async function gerarBackupCompleto(): Promise<BackupPayload> {
       totalDespesas: despesas.length,
       totalNotasFiscais: notasFiscais.length,
       totalBoletos: boletosReceber.length + boletosPagar.length,
+      totalPrecosEspeciais: precosEspeciais.length,
     },
     tabelas: {
       configuracao,
       user,
       clientes,
+      precosEspeciais,
       produtos,
       estoqueProdutos,
       estoqueGarrafoes,
@@ -136,6 +142,7 @@ export async function restaurarBackup(backup: BackupPayload): Promise<{ sucesso:
     await tx.pedido.deleteMany({});
     await tx.estoqueGarrafao.deleteMany({});
     await tx.estoqueProduto.deleteMany({});
+    await tx.clientePrecoProduto.deleteMany({});
     await tx.produto.deleteMany({});
     await tx.cliente.deleteMany({});
     await tx.user.deleteMany({});
@@ -180,6 +187,19 @@ export async function restaurarBackup(backup: BackupPayload): Promise<{ sucesso:
     if (backup.tabelas.produtos?.length) {
       for (const item of backup.tabelas.produtos) {
         await tx.produto.create({
+          data: {
+            ...item,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+          },
+        });
+      }
+    }
+
+    // 2.4.1 Preços Especiais por Cliente
+    if (backup.tabelas.precosEspeciais?.length) {
+      for (const item of backup.tabelas.precosEspeciais) {
+        await tx.clientePrecoProduto.create({
           data: {
             ...item,
             createdAt: new Date(item.createdAt),
